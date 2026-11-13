@@ -136,3 +136,13 @@ export interface Paginated<T> {
   pageSize: number;
   total: number;
 }
+
+/** Row in the development-only "sign in as" picker (GET /api/auth/dev/users). */
+export interface DevUserOption {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  classStanding: ClassStanding | null;
+  platformRole: PlatformRole;
+}

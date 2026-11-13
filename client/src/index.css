@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+/*
+ * ASA Elections design tokens (Tailwind v4).
+ * Augustana blue (#003087) is the 700 step of the blue scale and the bare
+ * `augie-blue` token; Augustana gold (#FFC72C) is the 400 step and the bare
+ * `augie-gold` token. Use gold-700+ for gold *text* on white (WCAG AA).
+ */
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Source Serif 4 Variable", ui-serif, Georgia, Cambria, "Times New Roman", serif;
+
+  --color-augie-blue: #003087;
+  --color-augie-blue-50: #eef3fb;
+  --color-augie-blue-100: #d9e3f5;
+  --color-augie-blue-200: #b6c9eb;
+  --color-augie-blue-300: #87a5dc;
+  --color-augie-blue-400: #5279c6;
+  --color-augie-blue-500: #2b56ad;
+  --color-augie-blue-600: #164196;
+  --color-augie-blue-700: #003087;
+  --color-augie-blue-800: #00266b;
+  --color-augie-blue-900: #001c50;
+  --color-augie-blue-950: #001236;
+
+  --color-augie-gold: #ffc72c;
+  --color-augie-gold-50: #fff9e6;
+  --color-augie-gold-100: #fff0bf;
+  --color-augie-gold-200: #ffe38a;
+  --color-augie-gold-300: #ffd659;
+  --color-augie-gold-400: #ffc72c;
+  --color-augie-gold-500: #f0b000;
+  --color-augie-gold-600: #c78f00;
+  --color-augie-gold-700: #9a6c00; /* 4.6:1 on white — minimum for gold text */
+  --color-augie-gold-800: #7a5500;
+  --color-augie-gold-900: #5c4000;
+
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.06);
+  --shadow-card-hover: 0 4px 12px rgb(15 23 42 / 0.08), 0 2px 4px rgb(15 23 42 / 0.05);
+
+  --animate-fade-in: fade-in 150ms ease-out;
+  --animate-scale-in: scale-in 150ms ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.97) translateY(4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-slate-50 font-sans text-slate-800;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif text-slate-900;
+    text-wrap: balance;
+  }
+
+  /* Visible focus for keyboard users everywhere. */
+  :focus-visible {
+    outline: 3px solid var(--color-augie-blue-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* On navy surfaces, use gold for the focus ring so it stays visible. */
+  .on-dark :focus-visible {
+    outline-color: var(--color-augie-gold-400);
+  }
+
+  main:focus {
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
