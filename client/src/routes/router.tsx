@@ -1,3 +1,4 @@
+import { lazy, type ComponentType } from "react";
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { MainLayout } from "../components/layout/MainLayout";
@@ -12,17 +13,35 @@ import { NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { ResultsPage } from "../pages/ResultsPage";
 import { VotePage } from "../pages/VotePage";
-import { AdminAnnouncementsPage } from "../pages/admin/AdminAnnouncementsPage";
-import { AdminAuditLogPage } from "../pages/admin/AdminAuditLogPage";
-import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
-import { AdminElectionsPage } from "../pages/admin/AdminElectionsPage";
-import { AdminMessagesPage } from "../pages/admin/AdminMessagesPage";
-import { AdminOrganizationsPage } from "../pages/admin/AdminOrganizationsPage";
-import { AdminStudentImportPage } from "../pages/admin/AdminStudentImportPage";
-import { AdminStudentsPage } from "../pages/admin/AdminStudentsPage";
-import { AdminVoterListsPage } from "../pages/admin/AdminVoterListsPage";
 import { AdminRoute } from "./AdminRoute";
 import { ProtectedRoute } from "./ProtectedRoute";
+
+/**
+ * Admin pages are split into their own chunks (students never download them).
+ * AdminLayout wraps its Outlet in Suspense.
+ */
+function lazyPage<K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) {
+  return lazy(() => load().then((m) => ({ default: m[name] })));
+}
+
+const AdminDashboardPage = lazyPage(() => import("../pages/admin/AdminDashboardPage"), "AdminDashboardPage");
+const AdminElectionsPage = lazyPage(() => import("../pages/admin/AdminElectionsPage"), "AdminElectionsPage");
+const AdminElectionNewPage = lazyPage(() => import("../pages/admin/AdminElectionNewPage"), "AdminElectionNewPage");
+const AdminElectionEditorPage = lazyPage(
+  () => import("../pages/admin/AdminElectionEditorPage"),
+  "AdminElectionEditorPage",
+);
+const AdminStudentsPage = lazyPage(() => import("../pages/admin/AdminStudentsPage"), "AdminStudentsPage");
+const AdminStudentImportPage = lazyPage(() => import("../pages/admin/AdminStudentImportPage"), "AdminStudentImportPage");
+const AdminVoterListsPage = lazyPage(() => import("../pages/admin/AdminVoterListsPage"), "AdminVoterListsPage");
+const AdminVoterListDetailPage = lazyPage(
+  () => import("../pages/admin/AdminVoterListDetailPage"),
+  "AdminVoterListDetailPage",
+);
+const AdminOrganizationsPage = lazyPage(() => import("../pages/admin/AdminOrganizationsPage"), "AdminOrganizationsPage");
+const AdminAnnouncementsPage = lazyPage(() => import("../pages/admin/AdminAnnouncementsPage"), "AdminAnnouncementsPage");
+const AdminMessagesPage = lazyPage(() => import("../pages/admin/AdminMessagesPage"), "AdminMessagesPage");
+const AdminAuditLogPage = lazyPage(() => import("../pages/admin/AdminAuditLogPage"), "AdminAuditLogPage");
 
 /** Route table (docs/ARCHITECTURE.md §8). Exported separately so tests can build a memory router. */
 export const routes: RouteObject[] = [
@@ -53,10 +72,12 @@ export const routes: RouteObject[] = [
             children: [
               { index: true, element: <AdminDashboardPage /> },
               { path: "elections", element: <AdminElectionsPage /> },
-              { path: "elections/:id", element: <AdminElectionsPage /> },
+              { path: "elections/new", element: <AdminElectionNewPage /> },
+              { path: "elections/:id", element: <AdminElectionEditorPage /> },
               { path: "students", element: <AdminStudentsPage /> },
               { path: "students/import", element: <AdminStudentImportPage /> },
               { path: "voter-lists", element: <AdminVoterListsPage /> },
+              { path: "voter-lists/:id", element: <AdminVoterListDetailPage /> },
               { path: "organizations", element: <AdminOrganizationsPage /> },
               { path: "announcements", element: <AdminAnnouncementsPage /> },
               { path: "messages", element: <AdminMessagesPage /> },

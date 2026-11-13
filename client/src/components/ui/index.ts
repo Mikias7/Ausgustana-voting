@@ -2,6 +2,7 @@ export { Alert, type AlertTone } from "./Alert";
 export { Avatar } from "./Avatar";
 export { BrandPanel } from "./BrandPanel";
 export { BrandRule } from "./BrandRule";
+export { Checkbox } from "./Checkbox";
 export { Button, buttonClasses, type ButtonProps, type ButtonLinkProps, type ButtonSize, type ButtonVariant } from "./Button";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { Container } from "./Container";

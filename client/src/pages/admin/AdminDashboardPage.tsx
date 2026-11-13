@@ -5,7 +5,9 @@ import { ListRow } from "../../components/ui/ListRow";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { useAuth } from "../../context/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
+import { useAdminElections } from "../../hooks/useAdminElections";
 import { useRosterStats } from "../../hooks/useRoster";
+import { dashboardElectionCounts } from "../../utils/adminElections";
 import { isPlatformAdmin } from "../../utils/auth";
 import { orgRoleLabel, platformRoleLabel } from "../../utils/labels";
 
@@ -26,7 +28,9 @@ export function AdminDashboardPage() {
   const sections = adminNavFor(user).filter((s) => s.to !== "/admin");
   // Live roster count on the "Students & Import" row (one small request, platform admins only).
   const roster = useRosterStats({ enabled: platformAdmin });
+  const elections = useAdminElections();
   const trailing: Record<string, string | undefined> = {
+    "/admin/elections": dashboardElectionCounts(elections.data) ?? undefined,
     "/admin/students": roster.data ? `${roster.data.onRoster.toLocaleString()} on roster` : undefined,
   };
 
@@ -43,8 +47,8 @@ export function AdminDashboardPage() {
             : undefined
         }
       />
-      <Alert tone="info" title="Admin tools are on the way" className="mb-10">
-        The admin area is set up and protected. Each section below is being built in an upcoming phase.
+      <Alert tone="info" title="More tools are on the way" className="mb-10">
+        Elections and voter lists are ready. Announcements, messages and the audit log arrive in upcoming updates.
       </Alert>
       <div className="space-y-8">
         {groupAdminNav(sections).map(({ group, items }) => (

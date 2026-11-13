@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronLeft } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { Container } from "../ui/Container";
 import { GroupedList } from "../ui/GroupedList";
+import { LoadingState } from "../ui/LoadingState";
 import { ListRow } from "../ui/ListRow";
 import { Modal } from "../ui/Modal";
 import { AdminSidebar } from "./AdminSidebar";
@@ -65,7 +66,9 @@ export function AdminLayout() {
         </Modal>
 
         <div key={location.pathname} className="min-w-0 animate-enter">
-          <Outlet />
+          <Suspense fallback={<LoadingState label="Loading…" />}>
+            <Outlet />
+          </Suspense>
         </div>
       </div>
     </Container>
