@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { ComingSoon } from "../components/layout/ComingSoon";
 import { Button } from "../components/ui/Button";
@@ -25,14 +25,14 @@ export function ElectionSubpage({ title, description, icon, comingSoon }: Electi
   usePageTitle(election ? `${title} · ${election.title}` : title);
 
   return (
-    <Container size="md" className="py-10 sm:py-14">
+    <Container size="narrow">
       <PageHeader
         breadcrumb={
           <Link
             to={`/elections/${id ?? ""}`}
-            className="inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-augie-blue-700 hover:text-augie-blue-900"
+            className="-ml-2 inline-flex min-h-11 items-center gap-0.5 rounded-full pr-3 pl-1 text-callout font-medium text-navy-900 transition-colors duration-160 hover:text-navy-600"
           >
-            <ArrowLeft className="size-4" aria-hidden="true" /> Back to election
+            <ChevronLeft className="size-[18px]" aria-hidden="true" /> Election
           </Link>
         }
         eyebrow={loading && !election ? "Loading…" : (election?.title ?? "Election")}
@@ -43,7 +43,7 @@ export function ElectionSubpage({ title, description, icon, comingSoon }: Electi
         icon={icon}
         description={comingSoon}
         action={
-          <Button to={`/elections/${id ?? ""}`} variant="secondary">
+          <Button to={`/elections/${id ?? ""}`} variant="tinted">
             View election details
           </Button>
         }

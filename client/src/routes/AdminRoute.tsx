@@ -12,7 +12,7 @@ import { canAccessAdmin, loginPath } from "../utils/auth";
 function NoAccess() {
   usePageTitle("Access denied");
   return (
-    <Container size="sm" className="py-16">
+    <Container size="narrow">
       <EmptyState
         icon={<ShieldAlert className="size-6" aria-hidden="true" />}
         title="You don't have access to administration"

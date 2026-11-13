@@ -1,58 +1,20 @@
 import { useEffect, useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
-import {
-  Building2,
-  ChevronDown,
-  LayoutDashboard,
-  ListChecks,
-  Mail,
-  Megaphone,
-  ScrollText,
-  ShieldCheck,
-  Users,
-  Vote,
-  type LucideIcon,
-} from "lucide-react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { ChevronDown, ChevronLeft } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { isPlatformAdmin } from "../../utils/auth";
-import { cn } from "../../utils/cn";
 import { Container } from "../ui/Container";
+import { GroupedList } from "../ui/GroupedList";
+import { ListRow } from "../ui/ListRow";
+import { Modal } from "../ui/Modal";
+import { AdminSidebar } from "./AdminSidebar";
+import { adminNavFor, groupAdminNav } from "./adminNav";
 
-interface AdminNavItem {
-  to: string;
-  label: string;
-  icon: LucideIcon;
-  end?: boolean;
-  /** Only platform admins see this section. */
-  platformOnly?: boolean;
-}
-
-export const ADMIN_NAV: AdminNavItem[] = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/admin/elections", label: "Elections", icon: Vote },
-  { to: "/admin/students", label: "Students & Import", icon: Users, platformOnly: true },
-  { to: "/admin/voter-lists", label: "Voter lists", icon: ListChecks },
-  { to: "/admin/organizations", label: "Organizations & admins", icon: Building2 },
-  { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
-  { to: "/admin/messages", label: "Messages", icon: Mail, platformOnly: true },
-  { to: "/admin/audit-log", label: "Audit log", icon: ScrollText, platformOnly: true },
-];
-
-function linkClass({ isActive }: { isActive: boolean }) {
-  return cn(
-    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-    isActive
-      ? "bg-augie-blue text-white shadow-sm"
-      : "text-slate-700 hover:bg-augie-blue-50 hover:text-augie-blue-800",
-  );
-}
-
+/** Admin shell: macOS-Settings-style sidebar on ≥1024px; a section switcher sheet below that. */
 export function AdminLayout() {
   const { user } = useAuth();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  const platformAdmin = isPlatformAdmin(user);
-  const items = ADMIN_NAV.filter((item) => platformAdmin || !item.platformOnly);
+  const items = adminNavFor(user);
   const current = items.find((item) =>
     item.end ? location.pathname === item.to : location.pathname.startsWith(item.to),
   );
@@ -60,56 +22,52 @@ export function AdminLayout() {
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
   return (
-    <div className="flex-1 bg-slate-50">
-      <Container className="py-6 lg:py-10">
-        <div className="lg:grid lg:grid-cols-[15rem_1fr] lg:gap-10">
-          <aside className="mb-6 lg:mb-0">
-            <div className="mb-4 hidden items-center gap-2 px-3 lg:flex">
-              <ShieldCheck className="size-5 text-augie-gold-700" aria-hidden="true" />
-              <span className="text-xs font-semibold tracking-[0.14em] text-slate-500 uppercase">Administration</span>
-            </div>
+    <Container animate={false}>
+      <div className="lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:gap-12">
+        <AdminSidebar items={items} />
 
-            {/* Mobile: collapsible section switcher */}
-            <button
-              type="button"
-              className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-card lg:hidden"
-              aria-expanded={menuOpen}
-              aria-controls="admin-nav"
-              onClick={() => setMenuOpen((o) => !o)}
-            >
-              <span className="flex items-center gap-2">
-                <ShieldCheck className="size-4 text-augie-gold-700" aria-hidden="true" />
-                Admin · {current?.label ?? "Menu"}
-              </span>
-              <ChevronDown className={cn("size-4 transition-transform", menuOpen && "rotate-180")} aria-hidden="true" />
-            </button>
-
-            <nav
-              id="admin-nav"
-              aria-label="Admin"
-              className={cn(
-                "mt-2 rounded-xl border border-slate-200 bg-white p-2 shadow-card lg:sticky lg:top-24 lg:mt-0 lg:block",
-                !menuOpen && "hidden",
-              )}
-            >
-              <ul className="space-y-0.5">
-                {items.map(({ to, label, icon: Icon, end }) => (
-                  <li key={to}>
-                    <NavLink to={to} end={end} className={linkClass}>
-                      <Icon className="size-4 shrink-0" aria-hidden="true" />
-                      {label}
-                    </NavLink>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </aside>
-
-          <div className="min-w-0">
-            <Outlet />
-          </div>
+        {/* Below 1024px: back link + current section button that opens a sheet. */}
+        <div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
+          <Link
+            to="/"
+            className="-ml-2 inline-flex min-h-11 items-center gap-0.5 rounded-full pr-3 pl-1 text-callout font-medium text-navy-900"
+          >
+            <ChevronLeft className="size-[18px]" aria-hidden="true" /> Site
+          </Link>
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(true)}
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-inset pr-3.5 pl-4 text-callout font-medium text-ink transition-colors duration-160 hover:bg-navy-50"
+          >
+            <span className="sr-only">Admin section: </span>
+            {current?.label ?? "Admin"}
+            <ChevronDown className="size-4 text-ink-2" aria-hidden="true" />
+          </button>
         </div>
-      </Container>
-    </div>
+        <Modal open={menuOpen} onClose={() => setMenuOpen(false)} placement="sheet" title="Administration">
+          <nav aria-label="Admin" className="max-h-[70dvh] space-y-5 overflow-y-auto">
+            {groupAdminNav(items).map(({ group, items: groupItems }) => (
+              <GroupedList key={group} title={group}>
+                {groupItems.map(({ to, label, icon: Icon }) => (
+                  <ListRow
+                    key={to}
+                    to={to}
+                    title={label}
+                    leading={<Icon className="size-5" aria-hidden="true" />}
+                    trailing={current?.to === to ? <span>Current</span> : undefined}
+                  />
+                ))}
+              </GroupedList>
+            ))}
+          </nav>
+        </Modal>
+
+        <div key={location.pathname} className="min-w-0 animate-enter">
+          <Outlet />
+        </div>
+      </div>
+    </Container>
   );
 }

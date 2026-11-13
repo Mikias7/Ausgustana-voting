@@ -3,30 +3,34 @@ import type { ElectionSummary } from "@asa/shared";
 import { Vote } from "lucide-react";
 import { EmptyState } from "../ui/EmptyState";
 import { ErrorState } from "../ui/ErrorState";
+import { GroupedList } from "../ui/GroupedList";
+import { ListRowSkeleton } from "../ui/ListRowSkeleton";
 import { ElectionCard } from "./ElectionCard";
-import { ElectionCardSkeleton } from "./ElectionCardSkeleton";
 
-interface ElectionGridProps {
+interface ElectionListProps {
   elections: ElectionSummary[] | undefined;
   loading: boolean;
   error: unknown;
   onRetry: () => void;
+  /** Accessible name for the list. */
+  label: string;
   emptyTitle: string;
   emptyDescription?: ReactNode;
   emptyAction?: ReactNode;
-  /** Show at most this many cards. */
+  /** Show at most this many rows. */
   limit?: number;
   skeletonCount?: number;
   headingLevel?: "h2" | "h3";
   compact?: boolean;
 }
 
-/** Election cards with loading, error and empty states. */
-export function ElectionGrid({
+/** Election rows in a grouped list, with skeleton, error and empty states. */
+export function ElectionList({
   elections,
   loading,
   error,
   onRetry,
+  label,
   emptyTitle,
   emptyDescription,
   emptyAction,
@@ -34,17 +38,19 @@ export function ElectionGrid({
   skeletonCount = 3,
   headingLevel,
   compact,
-}: ElectionGridProps) {
+}: ElectionListProps) {
   if (loading && !elections) {
     return (
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <>
         <span className="sr-only" role="status">
           Loading elections…
         </span>
-        {Array.from({ length: skeletonCount }, (_, i) => (
-          <ElectionCardSkeleton key={i} />
-        ))}
-      </div>
+        <GroupedList label={label} aria-busy>
+          {Array.from({ length: skeletonCount }, (_, i) => (
+            <ListRowSkeleton key={i} />
+          ))}
+        </GroupedList>
+      </>
     );
   }
   if (error) {
@@ -53,22 +59,22 @@ export function ElectionGrid({
   const items = limit ? (elections ?? []).slice(0, limit) : (elections ?? []);
   if (items.length === 0) {
     return (
-      <EmptyState
-        compact={compact}
-        icon={<Vote className="size-6" aria-hidden="true" />}
-        title={emptyTitle}
-        description={emptyDescription}
-        action={emptyAction}
-      />
+      <div className="rounded-row border border-hairline bg-surface">
+        <EmptyState
+          compact={compact}
+          icon={<Vote aria-hidden="true" />}
+          title={emptyTitle}
+          description={emptyDescription}
+          action={emptyAction}
+        />
+      </div>
     );
   }
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy={loading || undefined}>
+    <GroupedList label={label} aria-busy={loading}>
       {items.map((election) => (
-        <li key={election.id}>
-          <ElectionCard election={election} headingLevel={headingLevel} />
-        </li>
+        <ElectionCard key={election.id} election={election} headingLevel={headingLevel} />
       ))}
-    </ul>
+    </GroupedList>
   );
 }

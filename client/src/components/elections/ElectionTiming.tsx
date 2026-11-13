@@ -1,39 +1,39 @@
 import type { ElectionSummary } from "@asa/shared";
-import { CalendarDays } from "lucide-react";
-import { formatShortDateTime, toIso } from "../../utils/dates";
-import { cn } from "../../utils/cn";
+import { formatMonthDay, formatShortDateTime, toIso } from "../../utils/dates";
 
 type TimingInput = Pick<ElectionSummary, "phase" | "startsAt" | "endsAt">;
 
-/** One-line timing summary: "Closes Nov 20, 5:00 PM", "Opens …", "Closed …". */
-export function ElectionTiming({ election, className }: { election: TimingInput; className?: string }) {
-  const { phase, startsAt, endsAt } = election;
-  let prefix: string;
-  let date: string;
+/** The key moment for an election's phase: "Closes …", "Opens …", "Closed …". */
+export function timingFor({ phase, startsAt, endsAt }: TimingInput): { prefix: string; date: string } {
   switch (phase) {
     case "upcoming":
     case "draft":
-      prefix = "Opens";
-      date = startsAt;
-      break;
+      return { prefix: "Opens", date: startsAt };
     case "open":
-      prefix = "Closes";
-      date = endsAt;
-      break;
+      return { prefix: "Closes", date: endsAt };
     case "cancelled":
-      prefix = "Was scheduled for";
-      date = startsAt;
-      break;
+      return { prefix: "Was scheduled for", date: startsAt };
     default:
-      prefix = "Closed";
-      date = endsAt;
+      return { prefix: "Closed", date: endsAt };
   }
+}
+
+interface ElectionTimingProps {
+  election: TimingInput;
+  /** "Closes Nov 20" (list rows) instead of "Closes Nov 20, 5:00 PM". */
+  dateOnly?: boolean;
+  className?: string;
+}
+
+/** Inline timing summary: "Closes Nov 20, 5:00 PM" (or date only). */
+export function ElectionTiming({ election, dateOnly = false, className }: ElectionTimingProps) {
+  const { prefix, date } = timingFor(election);
   return (
-    <p className={cn("flex items-center gap-1.5 text-sm text-slate-600", className)}>
-      <CalendarDays className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
-      <span>
-        {prefix} <time dateTime={toIso(date)}>{formatShortDateTime(date)}</time>
-      </span>
-    </p>
+    <span className={className}>
+      {prefix}{" "}
+      <time dateTime={toIso(date)} className="tabular whitespace-nowrap">
+        {dateOnly ? formatMonthDay(date) : formatShortDateTime(date)}
+      </time>
+    </span>
   );
 }

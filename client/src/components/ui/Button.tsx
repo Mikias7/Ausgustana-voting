@@ -3,28 +3,29 @@ import { Link, type LinkProps } from "react-router-dom";
 import { cn } from "../../utils/cn";
 import { Spinner } from "./Spinner";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "gold" | "outline-light";
+/** `gold` is for navy surfaces only (navy text on gold). */
+export type ButtonVariant = "primary" | "secondary" | "tinted" | "ghost" | "danger" | "gold";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-lg font-semibold whitespace-nowrap " +
-  "transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-60 " +
-  "aria-disabled:cursor-not-allowed aria-disabled:opacity-60";
+  "relative inline-flex select-none items-center justify-center gap-2 rounded-full font-semibold whitespace-nowrap " +
+  "transition-[background-color,color,box-shadow,transform] duration-160 ease-apple motion-safe:active:scale-[0.98] " +
+  "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-augie-blue text-white shadow-sm hover:bg-augie-blue-800 active:bg-augie-blue-900",
-  secondary:
-    "border border-slate-300 bg-white text-augie-blue-800 shadow-sm hover:border-augie-blue-300 hover:bg-augie-blue-50",
-  ghost: "text-augie-blue-700 hover:bg-augie-blue-50",
-  danger: "bg-red-700 text-white shadow-sm hover:bg-red-800",
-  gold: "bg-augie-gold text-augie-blue-950 shadow-sm hover:bg-augie-gold-300",
-  "outline-light": "border border-white/40 text-white hover:border-white hover:bg-white/10",
+  primary: "bg-navy-900 text-white hover:bg-navy-hover active:bg-navy-hover",
+  secondary: "border border-hairline-strong bg-surface text-ink hover:bg-inset",
+  tinted: "bg-navy-100 text-navy-900 hover:bg-navy-200/70",
+  ghost: "text-ink-2 hover:bg-navy-900/5 hover:text-ink",
+  danger: "bg-danger text-white hover:bg-danger/90",
+  gold: "bg-gold text-navy-900 hover:bg-gold-hover",
 };
 
+/** Heights 36 / 44 / 52. */
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-sm",
-  md: "h-10 px-4 text-sm",
-  lg: "h-12 px-6 text-base",
+  sm: "h-9 px-4 text-[0.875rem]",
+  md: "h-11 px-5 text-callout",
+  lg: "h-13 px-7 text-body",
 };
 
 export function buttonClasses(
@@ -58,17 +59,25 @@ export type ButtonLinkProps = CommonProps &
     ref?: Ref<HTMLAnchorElement>;
   };
 
+/** While loading the label stays (transparent) so the button keeps its width; a spinner sits on top. */
 function Content({ leftIcon, rightIcon, children, loading }: CommonProps & { loading?: boolean }) {
   return (
     <>
-      {loading ? <Spinner className="size-4" /> : leftIcon}
-      {children}
-      {!loading && rightIcon}
+      <span className={cn("inline-flex items-center gap-2", loading && "opacity-0")}>
+        {leftIcon}
+        {children}
+        {rightIcon}
+      </span>
+      {loading && (
+        <span className="absolute inset-0 flex items-center justify-center">
+          <Spinner className="size-4" />
+        </span>
+      )}
     </>
   );
 }
 
-/** Button that can also render as a router Link (pass `to`). */
+/** Pill button that can also render as a router Link (pass `to`). */
 export function Button(props: ButtonProps | ButtonLinkProps) {
   if (props.to !== undefined) {
     const { variant, size, fullWidth, leftIcon, rightIcon, className, children, ...linkProps } =

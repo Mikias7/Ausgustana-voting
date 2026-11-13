@@ -1,11 +1,10 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import type { CurrentUser } from "@asa/shared";
-import { ChevronDown, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { LogOut, ShieldCheck, UserRound } from "lucide-react";
 import { Avatar } from "../ui/Avatar";
 import { canAccessAdmin } from "../../utils/auth";
 import { classStandingLabel } from "../../utils/labels";
-import { cn } from "../../utils/cn";
 import { fullName } from "../../utils/text";
 
 interface UserMenuProps {
@@ -14,9 +13,9 @@ interface UserMenuProps {
 }
 
 const itemClass =
-  "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-slate-700 hover:bg-augie-blue-50 hover:text-augie-blue-800 focus-visible:bg-augie-blue-50";
+  "flex min-h-11 w-full items-center gap-3 rounded-control px-3 text-left text-callout text-ink transition-colors duration-160 hover:bg-inset focus-visible:bg-inset focus-visible:outline-offset-0";
 
-/** Account dropdown (disclosure pattern): Esc and outside-click close it. */
+/** Avatar button + account popover (disclosure pattern): Esc and outside-click close it. */
 export function UserMenu({ user, onSignOut }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
@@ -53,36 +52,37 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-full py-1 pr-2 pl-1 text-sm font-medium text-white transition-colors hover:bg-white/10"
+        className="inline-flex size-11 items-center justify-center rounded-full transition-transform duration-160 ease-apple motion-safe:active:scale-[0.96]"
       >
-        <Avatar name={name} size="sm" className="ring-0" />
-        <span className="max-w-[10rem] truncate">{user.firstName}</span>
-        <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} aria-hidden="true" />
-        <span className="sr-only">Account menu</span>
+        <Avatar name={name} size="sm" />
+        <span className="sr-only">Account menu for {name}</span>
       </button>
 
       <div
         id={menuId}
         hidden={!open}
-        className="absolute right-0 z-40 mt-2 w-64 origin-top-right animate-scale-in rounded-xl border border-slate-200 bg-white p-2 shadow-xl"
+        className="absolute right-0 z-50 mt-2 w-72 origin-top-right animate-scale-in rounded-row border border-hairline bg-surface p-1.5 shadow-float"
       >
-        <div className="border-b border-slate-100 px-3 pt-1 pb-3">
-          <p className="truncate text-sm font-semibold text-slate-900">{name}</p>
-          <p className="truncate text-xs text-slate-500">{user.email}</p>
-          {user.classStanding && (
-            <p className="mt-1 text-xs font-medium text-augie-gold-700">{classStandingLabel(user.classStanding)}</p>
-          )}
+        <div className="flex items-center gap-3 px-3 pt-2.5 pb-3">
+          <Avatar name={name} size="md" />
+          <div className="min-w-0">
+            <p className="truncate text-callout font-semibold text-ink">{name}</p>
+            <p className="truncate text-footnote font-normal text-ink-2">
+              {user.classStanding ? classStandingLabel(user.classStanding) : user.email}
+            </p>
+          </div>
         </div>
-        <ul className="pt-2">
+        <div className="mx-3 border-t border-hairline" />
+        <ul className="pt-1.5">
           <li>
             <Link to="/profile" className={itemClass} onClick={close}>
-              <UserRound className="size-4" aria-hidden="true" /> My profile
+              <UserRound className="size-[18px] text-ink-2" aria-hidden="true" /> Profile
             </Link>
           </li>
           {canAccessAdmin(user) && (
             <li>
               <Link to="/admin" className={itemClass} onClick={close}>
-                <ShieldCheck className="size-4" aria-hidden="true" /> Admin
+                <ShieldCheck className="size-[18px] text-ink-2" aria-hidden="true" /> Admin
               </Link>
             </li>
           )}
@@ -95,7 +95,7 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
                 onSignOut();
               }}
             >
-              <LogOut className="size-4" aria-hidden="true" /> Sign out
+              <LogOut className="size-[18px] text-ink-2" aria-hidden="true" /> Sign out
             </button>
           </li>
         </ul>

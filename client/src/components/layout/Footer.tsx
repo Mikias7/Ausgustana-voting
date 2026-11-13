@@ -1,75 +1,59 @@
 import { Link } from "react-router-dom";
-import { ExternalLink, Mail, MapPin, Phone } from "lucide-react";
-import { Container } from "../ui/Container";
+import { BrandRule } from "../ui/BrandRule";
 import { ASA_CONTACT, BRAND } from "./brand";
 
-const linkClass = "rounded-sm text-augie-blue-100 transition-colors hover:text-white";
+const linkClass = "rounded-[4px] text-navy-200 transition-colors duration-160 hover:text-gold";
 
+/**
+ * Full-bleed navy band. On mobile it also carries the bottom padding that clears the floating
+ * tab bar, so the navy runs behind the tab bar and the safe area.
+ */
 export function Footer() {
-  const year = new Date().getFullYear();
   return (
-    <footer className="on-dark mt-auto bg-augie-blue-950 text-augie-blue-100">
-      <div className="h-[3px] bg-augie-gold" aria-hidden="true" />
-      <Container className="py-12">
-        <div className="grid gap-10 md:grid-cols-12">
-          <div className="md:col-span-5">
-            <div className="flex items-center gap-3">
-              <img src={BRAND.logoLight} alt="" className="size-14" width={56} height={56} />
-              <div>
-                <p className="font-serif text-xl font-semibold text-white">{BRAND.appName}</p>
-                <p className="text-sm text-augie-gold-200">{BRAND.orgName}</p>
-              </div>
-            </div>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed">
-              The official voting platform for student government and student organizations at Augustana
-              University, run by the Augustana Student Association.
+    <footer className="on-navy mt-auto bg-navy-900 pb-[calc(var(--tabbar-space)+16px)] text-navy-200 md:pb-0">
+      <div className="mx-auto w-full max-w-[calc(1120px+4rem)] px-6 sm:px-8">
+        <div className="flex flex-col gap-6 py-10 text-footnote font-normal sm:flex-row sm:items-start sm:gap-5">
+          {/* The navy emblem on a small white tile: the light logo's ring is illegible this small. */}
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-white">
+            <img src={BRAND.mark} alt="" className="h-7 w-auto" width={26} height={28} />
+          </span>
+          <div className="space-y-2">
+            <BrandRule size="lg" className="mb-3" />
+            <p>
+              <span className="font-semibold text-white">{BRAND.appName}</span> — a platform of the {BRAND.orgName},{" "}
+              {BRAND.university}.
+            </p>
+            <p className="flex flex-wrap gap-x-3 gap-y-1">
+              <a href={`mailto:${ASA_CONTACT.email}`} className={linkClass}>
+                {ASA_CONTACT.email}
+              </a>
+              <span aria-hidden="true">·</span>
+              <a href={ASA_CONTACT.phoneHref} className={`${linkClass} tabular`}>
+                {ASA_CONTACT.phone}
+              </a>
             </p>
           </div>
-
-          <nav aria-label="Footer" className="md:col-span-3">
-            <h2 className="font-sans text-xs font-semibold tracking-[0.14em] text-white uppercase">Platform</h2>
-            <ul className="mt-4 space-y-2.5 text-sm">
-              <li><Link to="/elections" className={linkClass}>Elections</Link></li>
-              <li><Link to="/elections?tab=past" className={linkClass}>Past results</Link></li>
-              <li><Link to="/about" className={linkClass}>About &amp; privacy</Link></li>
-              <li><Link to="/contact" className={linkClass}>Contact</Link></li>
+          <nav aria-label="Footer" className="sm:ml-auto">
+            <ul className="flex flex-wrap gap-x-5 gap-y-2">
+              <li>
+                <Link to="/about" className={linkClass}>
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className={linkClass}>
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <a href={ASA_CONTACT.website} target="_blank" rel="noreferrer" className={linkClass}>
+                  ASA website<span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
             </ul>
           </nav>
-
-          <div className="md:col-span-4">
-            <h2 className="font-sans text-xs font-semibold tracking-[0.14em] text-white uppercase">Contact ASA</h2>
-            <address className="mt-4 space-y-2.5 text-sm not-italic">
-              <p className="flex items-start gap-2.5">
-                <Mail className="mt-0.5 size-4 shrink-0 text-augie-gold" aria-hidden="true" />
-                <a href={`mailto:${ASA_CONTACT.email}`} className={linkClass}>{ASA_CONTACT.email}</a>
-              </p>
-              <p className="flex items-start gap-2.5">
-                <Phone className="mt-0.5 size-4 shrink-0 text-augie-gold" aria-hidden="true" />
-                <a href={ASA_CONTACT.phoneHref} className={linkClass}>{ASA_CONTACT.phone}</a>
-              </p>
-              <p className="flex items-start gap-2.5">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-augie-gold" aria-hidden="true" />
-                <span>
-                  {ASA_CONTACT.addressLines[0]}
-                  <br />
-                  {ASA_CONTACT.addressLines[1]}
-                </span>
-              </p>
-              <p className="flex items-start gap-2.5">
-                <ExternalLink className="mt-0.5 size-4 shrink-0 text-augie-gold" aria-hidden="true" />
-                <a href={ASA_CONTACT.website} className={linkClass} target="_blank" rel="noreferrer">
-                  ASA on augie.edu<span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </p>
-            </address>
-          </div>
         </div>
-
-        <div className="mt-10 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-augie-blue-200 sm:flex-row sm:items-center sm:justify-between">
-          <p>A platform of the Augustana Student Association · Augustana University</p>
-          <p>© {year} Augustana Student Association</p>
-        </div>
-      </Container>
+      </div>
     </footer>
   );
 }

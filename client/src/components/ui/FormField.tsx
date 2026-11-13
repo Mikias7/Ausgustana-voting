@@ -24,15 +24,15 @@ export function describedBy(id: string, hint?: ReactNode, error?: ReactNode): st
   return ids.length ? ids.join(" ") : undefined;
 }
 
-/** Label + control + hint + error. Input/Select/Textarea use it automatically when given `label`. */
+/** Label (13px/500) above the control, then hint or error. Input/Select/Textarea use it when given `label`. */
 export function FormField({ htmlFor, label, hint, error, required, className, children }: FormFieldProps) {
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       {label && (
-        <label htmlFor={htmlFor} className="text-sm font-semibold text-slate-800">
+        <label htmlFor={htmlFor} className="text-footnote text-ink">
           {label}
           {required && (
-            <span className="ml-0.5 text-red-700" aria-hidden="true">
+            <span className="ml-0.5 text-ink-2" aria-hidden="true">
               *
             </span>
           )}
@@ -40,12 +40,12 @@ export function FormField({ htmlFor, label, hint, error, required, className, ch
       )}
       {children}
       {hint && !error && (
-        <p id={hintId(htmlFor)} className="text-xs text-slate-600">
+        <p id={hintId(htmlFor)} className="text-footnote font-normal text-ink-2">
           {hint}
         </p>
       )}
       {error && (
-        <p id={errorId(htmlFor)} className="text-xs font-medium text-red-700">
+        <p id={errorId(htmlFor)} className="text-footnote text-danger">
           {error}
         </p>
       )}
@@ -53,11 +53,12 @@ export function FormField({ htmlFor, label, hint, error, required, className, ch
   );
 }
 
+/** Inset fill, no border until focus; 12px radius. Height is set by each control. */
 export const controlClasses = (invalid: boolean) =>
   cn(
-    "block w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 shadow-sm",
-    "placeholder:text-slate-400 transition-colors",
-    "focus:border-augie-blue-500 focus:outline-none focus:ring-3 focus:ring-augie-blue-500/20",
-    "disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500",
-    invalid ? "border-red-500" : "border-slate-300 hover:border-slate-400",
+    "block w-full rounded-input border bg-inset px-3.5 text-body text-ink",
+    "placeholder:text-ink-3 transition-[background-color,border-color] duration-160 ease-apple",
+    "hover:bg-navy-50 focus:border-hairline-strong focus:bg-surface",
+    "disabled:cursor-not-allowed disabled:opacity-60",
+    invalid ? "border-danger bg-danger/5" : "border-transparent",
   );

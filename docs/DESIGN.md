@@ -126,3 +126,41 @@ Section headers: Title 2 + trailing "See all ›" link.
 
 ## 7. Accessibility
 WCAG AA contrast (ink-3 only for ≥18px or non-essential meta paired with text); 44px touch targets; visible focus; semantic landmarks; skip link; reduced-motion respected; status never conveyed by color alone (dot + text).
+
+## 8. Implementation notes (UI redesign, client/)
+Where the build deviates from or refines the spec above:
+- **Palette lock-down.** `index.css` clears Tailwind's default palette (`--color-*: initial`), so only the tokens in §3 exist. A stray `slate-*`/`blue-*` class generates nothing.
+- **AA fixes.** Eyebrows use `ink-2`, not `ink-3` (12px text at ink-3 is ~3:1). Tab-bar inactive items use `ink-2`; the active item also gets a navy-100 pill behind its icon and a semibold label, so it isn't signalled by color alone. Added `--color-success-text #17703D` for the "Voted" chip text (`#1E8E4E` is ~4.1:1 at 13px); `success` is still used for dots/icons.
+- **Eligibility labels.** One eligible label, "You can vote" (§5). The older "Eligible" / "Your class" split is gone (`getEligibility()` in `utils/elections.ts`).
+- **Touch targets.** The segmented control and the quiet organization select are 44px tall below 640px and 36px from `sm`. Desktop pill-nav links stay 36px (pointer UI inside the 52px pill).
+- **Election detail below 1024px.** The action panel stays in the flow above the positions, so the status, dates and eligibility text are still visible. Only its CTA moves into the fixed glass bar. That bar sits above the tab bar below 768px and 16px from the bottom edge on tablets, where there's no tab bar. A spacer keeps content clear of it.
+- **Home.** "Open now" leaves out the featured election and hides when no other election is open. The feature panel follows the Panel rule: hairline, no shadow.
+- **Candidates.** Statements clamp to 2 lines, with a "More/Less" toggle (`aria-expanded`) for long ones, so nothing gets cut silently.
+- **Admin.** Sidebar groups are Overview · Elections (Elections, Voter lists) · People (Students & Import, Organizations & admins) · Communication (Announcements, Messages) · Records (Audit log). Below 1024px, a "‹ Site" link and a current-section pill open the same groups in a bottom sheet.
+- **Sheets.** `Modal` takes `placement="sheet"` for the mobile "More" menu and the admin section menu, with the same focus trap and restore as dialogs.
+- **Motion.** Reduced motion sets `animation: none` (not a near-zero duration) so the shimmer and pulse loops stop completely. Spinners are exempt so loading stays visible.
+- **Home featured election** (`pickFeaturedElection`, `utils/elections.ts`): picks (a) the soonest-closing open election the viewer can still vote in, else (b) an ASA election (`slug === "asa"`), else (c) the soonest closing. The panel sizes to its content and is vertically centered against the hero text. Home sections are 48px apart on mobile and 64px on desktop.
+- **Logo at small sizes**: the emblem `asa-mark-navy.png` (via `BrandMark`) is used in the nav, mobile header, footer and favicon at about 32px tall. The full `asa-logo-navy.png` is only used large, on Login and About.
+- **Positions**: "On your ballot" marks every position in `myStatus.eligiblePositionIds`, whether or not the voter has already voted. When a signed-in voter is eligible for some but not all positions, the list splits into "On your ballot" and then "Other positions" (`PositionList`).
+- **List rows** show dates only ("Closes Nov 16"). The detail page and the feature panel keep date + time.
+
+## 9. Brand accents
+The owner asked for more Augustana character while keeping the restraint. Gold and deep navy are used as deliberate, small brand moments.
+
+**Rules**
+- Gold (`#FED102`) is **never text on a light background** (about 1.5:1). It is used as (a) fills, shapes, rules and dots, (b) text or icons on navy surfaces, or (c) the gold button (navy text) on navy surfaces only. If gold-toned text is ever needed on a light surface, use `gold-600` (`#8A6D00`).
+- New tokens: `--color-gold-soft #FFF6CC` (small chip tints only, never large areas), `--color-gold-hover #FFDB33` (gold button hover), `--radius-feature 24px`.
+- Navy surfaces add the `.on-navy` class (via `BrandPanel` and the footer). It switches focus rings to gold and eyebrows to gold through `--eyebrow-color`.
+- Budget: about 5–8 small gold touches per screen, plus **one** navy brand panel and the navy footer. No gold backgrounds on large light areas. The only gradient is the faint glow inside `BrandPanel`.
+
+**Motif: the short gold rule** (`BrandRule`): 32×3px above the hero eyebrow and above "Sign in"; 16×2px before each Home section title and the "On your ballot" group header; 48×2px above the footer brand line.
+
+**Where gold appears**
+1. **Hero**: a gold highlighter band behind the lower third of "vote" (skewed, rounded). It draws in left to right once on load (600ms); under reduced motion it is shown complete.
+2. **Featured election** (`ElectionFeature` on `BrandPanel`): navy-900 surface, 24px radius, a 1px inner highlight and a soft gold glow (10%) in one corner. White title, navy-200 secondary text, gold eyebrows, light status. The countdown is white under a small gold "Closes in" label. A gold pill button: "Vote now" (to `/vote`) when the viewer can vote, otherwise "View election".
+3. **Quick stats** under the hero CTAs (`ElectionStats`): "N open now · N coming up · X until voting closes", with zero or unknown items hidden. Values are in navy Title-2 and labels in footnote ink-2, separated by hairlines. Shows skeletons while loading.
+4. **Election rows**: on hover or focus a 3px gold bar scales in on the left edge (160ms) and the chevron nudges 2px right. The "You can vote" chip uses a small gold dot instead of a check icon.
+5. **Navigation**: the active desktop pill link and the active mobile tab item each get a 4px gold dot under the label. The active state also keeps the navy-100 pill.
+6. **Footer**: a full-bleed navy-900 band with the navy emblem on a small white tile (the light logo's ring is illegible at this size), white and navy-200 text, and links that turn gold on hover. On mobile it carries the tab-bar padding, so the navy runs behind the tab bar and the safe area.
+7. **Election detail**: the action panel uses the navy `BrandPanel` with a gold button when the action is "Vote now"; otherwise it stays light. The mobile action bar stays glass with a navy button.
+8. **Profile**: the avatar gets a 2px gold ring with a 3px canvas gap when the student is on the roster, and the class label sits in a gold-soft chip with navy text.

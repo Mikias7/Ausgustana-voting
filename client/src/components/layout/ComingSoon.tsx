@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Construction } from "lucide-react";
+import { Hourglass } from "lucide-react";
 import { EmptyState } from "../ui/EmptyState";
 
 interface ComingSoonProps {
@@ -17,11 +17,14 @@ export function ComingSoon({
   icon,
 }: ComingSoonProps) {
   return (
-    <EmptyState
-      icon={icon ?? <Construction className="size-6" aria-hidden="true" />}
-      title={title}
-      description={description}
-      action={action}
-    />
+    <div className="rounded-panel border border-hairline bg-surface">
+      <EmptyState
+        eyebrow="Coming soon"
+        icon={icon ?? <Hourglass aria-hidden="true" />}
+        title={title}
+        description={description}
+        action={action}
+      />
+    </div>
   );
 }

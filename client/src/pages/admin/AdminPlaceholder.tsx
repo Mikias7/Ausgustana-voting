@@ -16,7 +16,7 @@ export function AdminPlaceholder({ title, description, icon, planned }: AdminPla
   usePageTitle(`${title} · Admin`);
   return (
     <>
-      <PageHeader eyebrow="Administration" title={title} description={description} />
+      <PageHeader title={title} description={description} />
       <ComingSoon icon={icon} description={planned} />
     </>
   );

@@ -1,10 +1,11 @@
 import { useId } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ElectionGrid } from "../components/elections/ElectionGrid";
+import { ElectionList } from "../components/elections/ElectionList";
 import { Container } from "../components/ui/Container";
 import { PageHeader } from "../components/ui/PageHeader";
+import { SegmentedControl } from "../components/ui/SegmentedControl";
 import { Select } from "../components/ui/Select";
-import { TabPanel, Tabs } from "../components/ui/Tabs";
+import { TabPanel } from "../components/ui/TabPanel";
 import { useElections } from "../hooks/useElections";
 import { useOrganizations } from "../hooks/useOrganizations";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -16,7 +17,7 @@ const TAB_IDS = ELECTION_TABS.map((t) => t.id);
 const EMPTY_COPY: Record<ElectionTabId, { title: string; description: string }> = {
   active: {
     title: "No elections are open right now",
-    description: "When voting opens for an election, it will appear here. Check the Upcoming tab for what's next.",
+    description: "When voting opens for an election, it will appear here. Check Upcoming for what's next.",
   },
   upcoming: {
     title: "No upcoming elections",
@@ -34,8 +35,9 @@ function OrganizationFilter() {
   if (!data || data.length < 2) return null;
   return (
     <Select
-      label="Organization"
-      className="sm:w-64"
+      appearance="quiet"
+      aria-label="Organization"
+      className="w-full sm:w-auto sm:max-w-64"
       value={params.get("org") ?? ""}
       placeholder="All organizations"
       options={data.map((o) => ({ value: o.slug, label: o.name }))}
@@ -64,21 +66,30 @@ export function ElectionsPage() {
   const { data, loading, error, reload } = useElections(phase, org);
 
   return (
-    <Container className="py-10 sm:py-14">
+    <Container>
       <PageHeader
-        eyebrow="Student elections"
         title="Elections"
-        description="Browse open, upcoming and past elections from ASA and student organizations at Augustana."
-        actions={<OrganizationFilter />}
+        description="Open, upcoming and past elections from ASA and student organizations at Augustana."
       />
-      <Tabs id={tabsId} label="Election status" tabs={ELECTION_TABS} value={tab} onChange={setTab} className="mb-8" />
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <SegmentedControl
+          id={tabsId}
+          label="Election status"
+          items={ELECTION_TABS}
+          value={tab}
+          onChange={setTab}
+          className="w-full sm:w-auto"
+        />
+        <OrganizationFilter />
+      </div>
       <TabPanel tabsId={tabsId} value={tab}>
-        <ElectionGrid
+        <ElectionList
+          label={`${ELECTION_TABS.find((t) => t.id === tab)!.label} elections`}
           elections={data}
           loading={loading}
           error={error}
           onRetry={reload}
-          skeletonCount={6}
+          skeletonCount={5}
           headingLevel="h2"
           emptyTitle={EMPTY_COPY[tab].title}
           emptyDescription={EMPTY_COPY[tab].description}

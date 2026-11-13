@@ -20,7 +20,7 @@ export function Textarea({ label, hint, error, required, id, className, fieldCla
       required={required}
       aria-invalid={error ? true : undefined}
       aria-describedby={describedBy(textareaId, hint, error)}
-      className={cn(controlClasses(Boolean(error)), "resize-y", className)}
+      className={cn(controlClasses(Boolean(error)), "resize-y py-3", className)}
       {...rest}
     />
   );

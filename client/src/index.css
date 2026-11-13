@@ -1,92 +1,203 @@
 @import "tailwindcss";
 
 /*
- * ASA Elections design tokens (Tailwind v4).
- * Augustana blue (#003087) is the 700 step of the blue scale and the bare
- * `augie-blue` token; Augustana gold (#FFC72C) is the 400 step and the bare
- * `augie-gold` token. Use gold-700+ for gold *text* on white (WCAG AA).
+ * ASA Elections design tokens — see docs/DESIGN.md §3.
+ * Brand values come from augie.edu (navy #081E3F, gold #FED102, warm white #FCFBFA).
+ * Tailwind's default palette is cleared so only these tokens exist.
  */
 @theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-navy-50: #f3f5f9;
+  --color-navy-100: #e7edf5;
+  --color-navy-200: #cfd8e6;
+  --color-navy-300: #aab7cd;
+  --color-navy-400: #7486a5;
+  --color-navy-500: #4a5d7e;
+  --color-navy-600: #2c4166;
+  --color-navy-700: #16294a;
+  --color-navy-800: #0d2247;
+  --color-navy-900: #081e3f; /* brand */
+  --color-navy-950: #04122a;
+  --color-navy-hover: #002561; /* Augustana "blue": hover/pressed primary */
+
+  --color-gold: #fed102;
+  --color-gold-600: #8a6d00; /* the only gold-toned text allowed on light surfaces (AA) */
+  --color-gold-soft: #fff6cc; /* subtle tints (chips) — never large areas */
+  --color-gold-hover: #ffdb33; /* gold button hover (on navy) */
+
+  --color-canvas: #fcfbfa;
+  --color-surface: #ffffff;
+  --color-inset: #f5f5f4;
+  --color-ink: #0b1a33;
+  --color-ink-2: #4c5667;
+  --color-ink-3: #8b93a1; /* large text / icons / non-essential meta only */
+  --color-hairline: rgb(8 30 63 / 0.08);
+  --color-hairline-strong: rgb(8 30 63 / 0.14);
+
+  --color-success: #1e8e4e;
+  --color-success-text: #17703d; /* AA for small success text on white */
+  --color-danger: #c4372c;
+  --color-warning: #b26a00;
+
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-serif: "Source Serif 4 Variable", ui-serif, Georgia, Cambria, "Times New Roman", serif;
 
-  --color-augie-blue: #003087;
-  --color-augie-blue-50: #eef3fb;
-  --color-augie-blue-100: #d9e3f5;
-  --color-augie-blue-200: #b6c9eb;
-  --color-augie-blue-300: #87a5dc;
-  --color-augie-blue-400: #5279c6;
-  --color-augie-blue-500: #2b56ad;
-  --color-augie-blue-600: #164196;
-  --color-augie-blue-700: #003087;
-  --color-augie-blue-800: #00266b;
-  --color-augie-blue-900: #001c50;
-  --color-augie-blue-950: #001236;
+  /* Type scale (size / line-height / tracking / weight) */
+  --text-display: clamp(2.75rem, 1.5rem + 4.5vw, 4.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.035em;
+  --text-display--font-weight: 600;
+  --text-large-title: clamp(2rem, 1.6rem + 1.6vw, 2.5rem);
+  --text-large-title--line-height: 1.1;
+  --text-large-title--letter-spacing: -0.03em;
+  --text-large-title--font-weight: 600;
+  --text-title-2: 1.5rem;
+  --text-title-2--line-height: 1.2;
+  --text-title-2--letter-spacing: -0.02em;
+  --text-title-2--font-weight: 600;
+  --text-title-3: 1.0625rem;
+  --text-title-3--line-height: 1.35;
+  --text-title-3--letter-spacing: -0.01em;
+  --text-title-3--font-weight: 600;
+  --text-body: 1rem;
+  --text-body--line-height: 1.55;
+  --text-callout: 0.9375rem;
+  --text-callout--line-height: 1.5;
+  --text-footnote: 0.8125rem;
+  --text-footnote--line-height: 1.4;
+  --text-footnote--font-weight: 500;
+  --text-caption: 0.6875rem;
+  --text-caption--line-height: 1.2;
+  --text-caption--font-weight: 500;
 
-  --color-augie-gold: #ffc72c;
-  --color-augie-gold-50: #fff9e6;
-  --color-augie-gold-100: #fff0bf;
-  --color-augie-gold-200: #ffe38a;
-  --color-augie-gold-300: #ffd659;
-  --color-augie-gold-400: #ffc72c;
-  --color-augie-gold-500: #f0b000;
-  --color-augie-gold-600: #c78f00;
-  --color-augie-gold-700: #9a6c00; /* 4.6:1 on white — minimum for gold text */
-  --color-augie-gold-800: #7a5500;
-  --color-augie-gold-900: #5c4000;
+  --radius-control: 10px;
+  --radius-input: 12px;
+  --radius-row: 14px;
+  --radius-panel: 20px;
+  --radius-feature: 24px;
 
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.06);
-  --shadow-card-hover: 0 4px 12px rgb(15 23 42 / 0.08), 0 2px 4px rgb(15 23 42 / 0.05);
+  --shadow-float: 0 8px 30px rgb(8 30 63 / 0.08), 0 1px 2px rgb(8 30 63 / 0.06);
+  --shadow-thumb: 0 1px 2px rgb(8 30 63 / 0.08), 0 2px 6px rgb(8 30 63 / 0.06);
 
-  --animate-fade-in: fade-in 150ms ease-out;
-  --animate-scale-in: scale-in 150ms ease-out;
+  --ease-apple: cubic-bezier(0.2, 0.8, 0.2, 1);
 
+  --animate-enter: enter 240ms var(--ease-apple) both;
+  --animate-fade-in: fade-in 240ms var(--ease-apple) both;
+  --animate-scale-in: scale-in 240ms var(--ease-apple) both;
+  --animate-sheet-in: sheet-in 240ms var(--ease-apple) both;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2s ease-out infinite;
+  --animate-highlight: highlight 600ms var(--ease-apple) 200ms both;
+
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
   }
   @keyframes scale-in {
-    from { opacity: 0; transform: scale(0.97) translateY(4px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: none; }
   }
+  @keyframes sheet-in {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes shimmer {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+  @keyframes highlight {
+    from { transform: skewX(-8deg) scaleX(0); }
+    to { transform: skewX(-8deg) scaleX(1); }
+  }
+  @keyframes pulse-ring {
+    0% { opacity: 0.5; transform: scale(1); }
+    80%, 100% { opacity: 0; transform: scale(2.6); }
+  }
+}
+
+/* Eyebrow label: 12px / 600 / +0.08em uppercase. Uses ink-2 (not ink-3) to stay AA at this size;
+   gold on navy surfaces (via --eyebrow-color set by .on-navy). */
+@utility eyebrow {
+  font-size: 0.75rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--eyebrow-color, var(--color-ink-2));
+}
+
+/* Floating glass surface (nav, tab bar, mobile action bar). */
+@utility glass {
+  @apply bg-white/75 backdrop-blur-xl backdrop-saturate-150;
+}
+
+/* Room for the mobile bottom tab bar (see BottomTabBar). */
+:root {
+  --tabbar-height: 60px;
+  --tabbar-bottom: max(12px, env(safe-area-inset-bottom));
+  --tabbar-space: calc(var(--tabbar-bottom) + var(--tabbar-height));
 }
 
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-slate-50 font-sans text-slate-800;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    font-size: 1rem;
+    line-height: 1.55;
   }
 
   h1, h2, h3, h4 {
-    @apply font-serif text-slate-900;
+    color: var(--color-ink);
     text-wrap: balance;
   }
 
-  /* Visible focus for keyboard users everywhere. */
-  :focus-visible {
-    outline: 3px solid var(--color-augie-blue-500);
-    outline-offset: 2px;
-    border-radius: 4px;
+  time, .tabular {
+    font-variant-numeric: tabular-nums;
   }
 
-  /* On navy surfaces, use gold for the focus ring so it stays visible. */
-  .on-dark :focus-visible {
-    outline-color: var(--color-augie-gold-400);
+  /* Focus: 2px navy ring with 2px offset, following the element's radius. */
+  :focus-visible {
+    outline: 2px solid var(--color-navy-900);
+    outline-offset: 2px;
+  }
+
+  /* On navy surfaces the navy ring would vanish: use gold. */
+  .on-navy {
+    --eyebrow-color: var(--color-gold);
+  }
+  .on-navy :focus-visible {
+    outline-color: var(--color-gold);
   }
 
   main:focus {
     outline: none;
   }
 
+  ::selection {
+    background-color: var(--color-navy-100);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
+    *:not(.animate-spin), *::before, *::after {
+      animation: none !important;
       transition-duration: 0.01ms !important;
     }
   }

@@ -14,6 +14,8 @@ export interface ModalProps {
   children?: ReactNode;
   footer?: ReactNode;
   size?: "sm" | "md" | "lg";
+  /** "center" dialog (default) or a bottom "sheet" (mobile menus). */
+  placement?: "center" | "sheet";
   /** Prevent closing with Esc / backdrop (e.g. while a request is in flight). */
   dismissible?: boolean;
   /** Element to focus first; defaults to the first focusable element in the dialog. */
@@ -35,12 +37,14 @@ export function Modal({
   children,
   footer,
   size = "md",
+  placement = "center",
   dismissible = true,
   initialFocusRef,
 }: ModalProps) {
   const titleId = useId();
   const descId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const sheet = placement === "sheet";
 
   useEffect(() => {
     if (!open) return;
@@ -84,9 +88,15 @@ export function Modal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center" onKeyDown={onKeyDown}>
+    <div
+      className={cn(
+        "fixed inset-0 z-50 flex justify-center",
+        sheet ? "items-end px-2 pb-[max(8px,env(safe-area-inset-bottom))]" : "items-end p-4 sm:items-center",
+      )}
+      onKeyDown={onKeyDown}
+    >
       <div
-        className="absolute inset-0 animate-fade-in bg-augie-blue-950/50 backdrop-blur-[2px]"
+        className="absolute inset-0 animate-fade-in bg-navy-950/40 backdrop-blur-sm"
         aria-hidden="true"
         onClick={dismissible ? onClose : undefined}
       />
@@ -98,17 +108,17 @@ export function Modal({
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
         className={cn(
-          "relative w-full animate-scale-in rounded-2xl bg-white shadow-xl ring-1 ring-slate-900/5",
-          sizes[size],
+          "relative w-full rounded-panel bg-surface shadow-float",
+          sheet ? "max-w-lg animate-sheet-in" : cn("animate-scale-in", sizes[size]),
         )}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 pt-5 pb-4">
-          <div>
-            <h2 id={titleId} className="text-xl font-semibold">
+        <div className={cn("flex items-start justify-between gap-4 px-6 pt-6", sheet ? "pb-2" : "pb-1")}>
+          <div className="min-w-0">
+            <h2 id={titleId} className={sheet ? "text-title-3" : "text-title-2"}>
               {title}
             </h2>
             {description && (
-              <p id={descId} className="mt-1 text-sm text-slate-600">
+              <p id={descId} className="mt-1.5 text-callout text-ink-2">
                 {description}
               </p>
             )}
@@ -117,18 +127,16 @@ export function Modal({
             <button
               type="button"
               onClick={onClose}
-              className="-mr-2 rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+              className="-mt-1.5 -mr-2.5 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2 transition-colors duration-160 hover:bg-inset hover:text-ink"
               aria-label="Close dialog"
             >
               <X className="size-5" aria-hidden="true" />
             </button>
           )}
         </div>
-        {children && <div className="px-6 py-5 text-sm text-slate-700">{children}</div>}
+        {children && <div className={cn("text-callout text-ink-2", sheet ? "px-3 pb-3" : "px-6 py-4")}>{children}</div>}
         {footer && (
-          <div className="flex flex-col-reverse gap-2 rounded-b-2xl border-t border-slate-100 bg-slate-50 px-6 py-4 sm:flex-row sm:justify-end">
-            {footer}
-          </div>
+          <div className="flex flex-col-reverse gap-2 px-6 pt-2 pb-6 sm:flex-row sm:justify-end">{footer}</div>
         )}
       </div>
     </div>,

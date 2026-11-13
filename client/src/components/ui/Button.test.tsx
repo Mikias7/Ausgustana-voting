@@ -16,7 +16,7 @@ describe("Button", () => {
 
   it("applies variant classes", () => {
     render(<Button variant="danger">Delete</Button>);
-    expect(screen.getByRole("button", { name: "Delete" }).className).toContain("bg-red-700");
+    expect(screen.getByRole("button", { name: "Delete" }).className).toContain("bg-danger");
   });
 
   it("is disabled and busy while loading", async () => {

@@ -5,28 +5,33 @@ import { cn } from "../../utils/cn";
 interface EmptyStateProps {
   title: ReactNode;
   description?: ReactNode;
+  /** Thin-stroke lucide icon; sized and stroked by this component. */
   icon?: ReactNode;
+  /** Small label above the title, e.g. "Coming soon". */
+  eyebrow?: ReactNode;
   action?: ReactNode;
-  /** Compact variant for use inside cards and sections. */
+  /** Less vertical space, for use inside sections. */
   compact?: boolean;
   className?: string;
 }
 
-export function EmptyState({ title, description, icon, action, compact = false, className }: EmptyStateProps) {
+/** Centered and quiet: icon in a navy-50 circle, title, one line of ink-2, optional action. */
+export function EmptyState({ title, description, icon, eyebrow, action, compact = false, className }: EmptyStateProps) {
   return (
     <div
       className={cn(
-        "flex flex-col items-center rounded-xl border border-dashed border-slate-300 bg-white/60 text-center",
-        compact ? "px-6 py-8" : "px-6 py-14",
+        "flex flex-col items-center text-center",
+        compact ? "px-6 py-10" : "px-6 py-16 sm:py-20",
         className,
       )}
     >
-      <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-augie-blue-50 text-augie-blue">
-        {icon ?? <Inbox className="size-6" aria-hidden="true" />}
+      <div className="mb-5 flex size-12 items-center justify-center rounded-full bg-navy-50 text-navy-900 [&_svg]:size-6 [&_svg]:stroke-[1.5]">
+        {icon ?? <Inbox aria-hidden="true" />}
       </div>
-      <p className="font-serif text-lg font-semibold text-slate-900">{title}</p>
-      {description && <p className="mt-1.5 max-w-md text-sm text-slate-600">{description}</p>}
-      {action && <div className="mt-5">{action}</div>}
+      {eyebrow && <p className="eyebrow mb-2.5">{eyebrow}</p>}
+      <p className="text-title-3">{title}</p>
+      {description && <p className="mt-1.5 max-w-md text-callout text-ink-2">{description}</p>}
+      {action && <div className="mt-6">{action}</div>}
     </div>
   );
 }

@@ -25,22 +25,18 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className={cn(
-        "flex flex-col items-center rounded-xl border border-red-200 bg-red-50/60 text-center",
-        compact ? "px-6 py-8" : "px-6 py-14",
-        className,
-      )}
+      className={cn("flex flex-col items-center text-center", compact ? "px-6 py-10" : "px-6 py-16 sm:py-20", className)}
     >
-      <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-red-100 text-red-700">
-        <TriangleAlert className="size-6" aria-hidden="true" />
+      <div className="mb-5 flex size-12 items-center justify-center rounded-full bg-danger/8 text-danger">
+        <TriangleAlert className="size-6" strokeWidth={1.5} aria-hidden="true" />
       </div>
-      <p className="font-serif text-lg font-semibold text-slate-900">{title}</p>
-      <p className="mt-1.5 max-w-md text-sm text-slate-700">{message ?? getErrorMessage(error)}</p>
+      <p className="text-title-3">{title}</p>
+      <p className="mt-1.5 max-w-md text-callout text-ink-2">{message ?? getErrorMessage(error)}</p>
       {onRetry && (
         <Button
           variant="secondary"
           size="sm"
-          className="mt-5"
+          className="mt-6"
           onClick={onRetry}
           leftIcon={<RefreshCw className="size-4" aria-hidden="true" />}
         >
