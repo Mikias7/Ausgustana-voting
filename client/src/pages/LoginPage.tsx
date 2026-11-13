@@ -23,13 +23,17 @@ import { safeNextPath } from "../utils/auth";
 import { classStandingLabel, classStandingPlural } from "../utils/labels";
 import { fullName } from "../utils/text";
 
+/** Accounts shown per group before "Show all" (more while searching). */
+const PREVIEW = 5;
+const SEARCH_PREVIEW = 25;
+
 interface Group {
   key: string;
   label: string;
   users: DevUser[];
 }
 
-/** Admins first, then seniors → freshmen, then users without a class. */
+/** Admins first, then freshmen → seniors → graduate students, then users without a class. */
 function groupUsers(users: DevUser[]): Group[] {
   const byName = (a: DevUser, b: DevUser) =>
     a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(b.firstName);
@@ -37,7 +41,7 @@ function groupUsers(users: DevUser[]): Group[] {
     { key: "admin", label: "Administrators", users: users.filter((u) => u.platformRole === "PLATFORM_ADMIN") },
   ];
   const students = users.filter((u) => u.platformRole !== "PLATFORM_ADMIN");
-  for (const cls of [...CLASS_STANDINGS].reverse() as ClassStanding[]) {
+  for (const cls of CLASS_STANDINGS as readonly ClassStanding[]) {
     groups.push({ key: cls, label: classStandingPlural(cls), users: students.filter((u) => u.classStanding === cls) });
   }
   groups.push({ key: "none", label: "Staff & other accounts", users: students.filter((u) => !u.classStanding) });
@@ -62,6 +66,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const next = safeNextPath(params.get("next"));
   const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [pending, setPending] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
 
@@ -151,16 +156,21 @@ export function LoginPage() {
               </p>
             ) : (
               <div className="mt-8 space-y-7">
-                {groups.map((group) => (
+                {groups.map((group) => {
+                  // A real roster has thousands of students: show a few per class unless expanded.
+                  const limit = expanded.has(group.key) ? Infinity : query.trim() ? SEARCH_PREVIEW : PREVIEW;
+                  const shown = group.users.slice(0, limit);
+                  const hidden = group.users.length - shown.length;
+                  return (
+                  <div key={group.key}>
                   <GroupedList
-                    key={group.key}
                     title={
                       <>
                         {group.label} <span className="font-normal tabular">({group.users.length})</span>
                       </>
                     }
                   >
-                    {group.users.map((u) => (
+                    {shown.map((u) => (
                       <ListRow
                         key={u.id}
                         title={fullName(u)}
@@ -174,7 +184,18 @@ export function LoginPage() {
                       />
                     ))}
                   </GroupedList>
-                ))}
+                  {hidden > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setExpanded((prev) => new Set(prev).add(group.key))}
+                      className="mt-1.5 ml-4 inline-flex min-h-11 items-center rounded-full px-1 text-callout font-medium text-navy-900 hover:text-navy-600"
+                    >
+                      Show all {group.users.length.toLocaleString()} {group.label.toLowerCase()}
+                    </button>
+                  )}
+                  </div>
+                  );
+                })}
               </div>
             )}
           </>
