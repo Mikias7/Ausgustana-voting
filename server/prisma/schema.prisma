@@ -1,0 +1,351 @@
+// Augustana voting platform — database schema.
+// See docs/ARCHITECTURE.md §6. Enum values must match shared/src/enums.ts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PlatformRole {
+  STUDENT
+  PLATFORM_ADMIN
+}
+
+enum OrgRole {
+  ORG_ADMIN
+  ELECTION_ADMIN
+}
+
+enum ClassStanding {
+  FR
+  SO
+  JR
+  SR
+}
+
+enum ElectionStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+enum VotingMethod {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+}
+
+enum ResultsVisibility {
+  PUBLIC
+  STUDENTS
+  ADMINS_ONLY
+}
+
+enum ResultsRelease {
+  AUTOMATIC
+  MANUAL
+}
+
+enum ImportMode {
+  MERGE
+  FULL_SYNC
+}
+
+// ---------------------------------------------------------------------------
+// People & organizations
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String         @id @default(uuid()) @db.Uuid
+  /// Roster key, always lowercase.
+  username      String         @unique
+  email         String         @unique
+  firstName     String         @map("first_name")
+  lastName      String         @map("last_name")
+  classStanding ClassStanding? @map("class_standing")
+  /// true = currently on the university roster (eligible to vote).
+  onRoster      Boolean        @default(false) @map("on_roster")
+  platformRole  PlatformRole   @default(STUDENT) @map("platform_role")
+  lastImportId  String?        @map("last_import_id") @db.Uuid
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  lastImport       StudentImport?       @relation("UserLastImport", fields: [lastImportId], references: [id], onDelete: SetNull)
+  orgRoles         OrganizationRole[]
+  participations   VoterParticipation[]
+  electionsCreated Election[]           @relation("ElectionCreatedBy")
+  candidacies      Candidate[]
+  importsUploaded  StudentImport[]      @relation("ImportUploadedBy")
+  auditLogs        AuditLog[]
+
+  @@index([lastName, firstName])
+  @@index([classStanding])
+  @@map("users")
+}
+
+model Organization {
+  id           String  @id @default(uuid()) @db.Uuid
+  name         String  @unique
+  slug         String  @unique
+  description  String?
+  contactEmail String? @map("contact_email")
+
+  elections     Election[]
+  roles         OrganizationRole[]
+  voterLists    VoterList[]
+  announcements Announcement[]
+
+  @@map("organizations")
+}
+
+model OrganizationRole {
+  organizationId String  @map("organization_id") @db.Uuid
+  userId         String  @map("user_id") @db.Uuid
+  role           OrgRole
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([organizationId, userId])
+  @@index([userId])
+  @@map("organization_roles")
+}
+
+// ---------------------------------------------------------------------------
+// Elections
+// ---------------------------------------------------------------------------
+
+model Election {
+  id                 String            @id @default(uuid()) @db.Uuid
+  organizationId     String            @map("organization_id") @db.Uuid
+  title              String
+  description        String?
+  startsAt           DateTime          @map("starts_at")
+  endsAt             DateTime          @map("ends_at")
+  status             ElectionStatus    @default(DRAFT)
+  closedAt           DateTime?         @map("closed_at")
+  /// EligibilityRule (validated with zod, see shared/src/eligibility.ts)
+  eligibility        Json
+  resultsVisibility  ResultsVisibility @default(STUDENTS) @map("results_visibility")
+  resultsRelease     ResultsRelease    @default(MANUAL) @map("results_release")
+  showTurnout        Boolean           @default(true) @map("show_turnout")
+  resultsPublishedAt DateTime?         @map("results_published_at")
+  createdById        String            @map("created_by_id") @db.Uuid
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  // Restrict: an organization or creator with elections cannot be deleted.
+  organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdBy      User                 @relation("ElectionCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  positions      Position[]
+  participations VoterParticipation[]
+  ballots        Ballot[]
+
+  @@index([organizationId])
+  @@index([status, startsAt])
+  @@index([status, endsAt])
+  @@map("elections")
+}
+
+model Position {
+  id            String       @id @default(uuid()) @db.Uuid
+  electionId    String       @map("election_id") @db.Uuid
+  title         String
+  description   String?
+  seats         Int          @default(1)
+  votingMethod  VotingMethod @default(SINGLE_CHOICE) @map("voting_method")
+  maxSelections Int          @default(1) @map("max_selections")
+  allowAbstain  Boolean      @default(true) @map("allow_abstain")
+  allowWriteIn  Boolean      @default(false) @map("allow_write_in")
+  /// EligibilityRule
+  eligibility   Json
+  sortOrder     Int          @default(0) @map("sort_order")
+
+  // Restrict everywhere votes may exist; drafts are deleted explicitly by the service.
+  election   Election          @relation(fields: [electionId], references: [id], onDelete: Restrict)
+  candidates Candidate[]
+  selections BallotSelection[]
+
+  @@index([electionId, sortOrder])
+  @@map("positions")
+}
+
+model Candidate {
+  id         String  @id @default(uuid()) @db.Uuid
+  positionId String  @map("position_id") @db.Uuid
+  name       String
+  bio        String?
+  photoUrl   String? @map("photo_url")
+  /// Optional link to a student account.
+  userId     String? @map("user_id") @db.Uuid
+  sortOrder  Int     @default(0) @map("sort_order")
+
+  position   Position          @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  user       User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  selections BallotSelection[]
+
+  @@index([positionId, sortOrder])
+  @@map("candidates")
+}
+
+/// Uploaded list of usernames for VOTER_LIST eligibility (e.g. international students).
+model VoterList {
+  id             String @id @default(uuid()) @db.Uuid
+  name           String
+  organizationId String @map("organization_id") @db.Uuid
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  members      VoterListMember[]
+
+  @@index([organizationId])
+  @@map("voter_lists")
+}
+
+model VoterListMember {
+  voterListId String @map("voter_list_id") @db.Uuid
+  /// Lowercase roster username (not a FK: lists may name students not yet imported).
+  username    String
+
+  voterList VoterList @relation(fields: [voterListId], references: [id], onDelete: Cascade)
+
+  @@id([voterListId, username])
+  @@index([username])
+  @@map("voter_list_members")
+}
+
+// ---------------------------------------------------------------------------
+// Voting — identity and ballots are deliberately NOT linked.
+// ---------------------------------------------------------------------------
+
+/// Records THAT a user voted in an election, never what they chose.
+model VoterParticipation {
+  id         String   @id @default(uuid()) @db.Uuid
+  electionId String   @map("election_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  votedAt    DateTime @default(now()) @map("voted_at")
+
+  election Election @relation(fields: [electionId], references: [id], onDelete: Restrict)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  /// Blocks double voting, including concurrent submissions.
+  @@unique([electionId, userId])
+  @@index([userId])
+  @@map("voter_participations")
+}
+
+/// An anonymous ballot. NO user reference and NO timestamp — by design.
+model Ballot {
+  id          String @id @default(uuid()) @db.Uuid
+  electionId  String @map("election_id") @db.Uuid
+  /// SHA-256 of the voter's receipt code; the code itself is never stored.
+  receiptHash String @unique @map("receipt_hash")
+
+  election   Election          @relation(fields: [electionId], references: [id], onDelete: Restrict)
+  selections BallotSelection[]
+
+  @@index([electionId])
+  @@map("ballots")
+}
+
+model BallotSelection {
+  id          String  @id @default(uuid()) @db.Uuid
+  ballotId    String  @map("ballot_id") @db.Uuid
+  positionId  String  @map("position_id") @db.Uuid
+  /// null when abstaining or writing in.
+  candidateId String? @map("candidate_id") @db.Uuid
+  writeIn     String? @map("write_in")
+  abstain     Boolean @default(false)
+
+  ballot    Ballot     @relation(fields: [ballotId], references: [id], onDelete: Restrict)
+  position  Position   @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  candidate Candidate? @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+
+  @@index([ballotId])
+  @@index([positionId, candidateId])
+  @@map("ballot_selections")
+}
+
+// ---------------------------------------------------------------------------
+// Admin / platform
+// ---------------------------------------------------------------------------
+
+model StudentImport {
+  id           String     @id @default(uuid()) @db.Uuid
+  uploadedById String?    @map("uploaded_by_id") @db.Uuid
+  fileName     String     @map("file_name")
+  mode         ImportMode
+  created      Int
+  updated      Int
+  unchanged    Int
+  deactivated  Int
+  skipped      Int
+  /// [{ line, username?, severity, message }] — never full row dumps.
+  issues       Json
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  uploadedBy User?  @relation("ImportUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+  users      User[] @relation("UserLastImport")
+
+  @@index([createdAt])
+  @@map("student_imports")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @map("actor_id") @db.Uuid
+  /// e.g. ELECTION_PUBLISHED, ROSTER_IMPORTED
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  /// Never contains ballot selections.
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@map("audit_logs")
+}
+
+model Announcement {
+  id             String    @id @default(uuid()) @db.Uuid
+  organizationId String?   @map("organization_id") @db.Uuid
+  title          String
+  body           String
+  publishedAt    DateTime? @map("published_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([publishedAt])
+  @@map("announcements")
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  email     String
+  subject   String
+  message   String
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([handled, createdAt])
+  @@map("contact_messages")
+}
+
+/// express-session store (connect-pg-simple). Owned by migrations; the store
+/// runs with createTableIfMissing: false.
+model Session {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+  @@map("session")
+}
