@@ -8,7 +8,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        // Override to point the dev UI at another API (e.g. a throwaway demo database).
+        target: process.env.VITE_API_TARGET ?? "http://localhost:3000",
         changeOrigin: false,
       },
     },

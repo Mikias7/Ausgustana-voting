@@ -1,8 +1,9 @@
 import type {
+  BallotSubmissionInput,
   ElectionDetail,
   ElectionResults,
   ElectionSummary,
-  PositionDto,
+  ReceiptCheck,
   VoteReceipt,
 } from "@asa/shared";
 import { api } from "./client";
@@ -26,31 +27,14 @@ export function getElection(id: string, signal?: AbortSignal): Promise<ElectionD
   return api.get<ElectionDetail>(`/elections/${encodeURIComponent(id)}`, undefined, signal);
 }
 
-/**
- * Ballot for the signed-in voter (only positions they are eligible for).
- * Provisional shape — proposed for @asa/shared as `BallotDto` (feature/voting).
- */
-export interface BallotDto {
-  election: ElectionSummary;
-  positions: PositionDto[];
-}
-
-/** Provisional submission shape — proposed for @asa/shared as a zod schema (feature/voting). */
-export interface BallotSubmission {
-  selections: {
-    positionId: string;
-    candidateIds: string[];
-    writeIn?: string;
-    abstain?: boolean;
-  }[];
-}
-
-export function getBallot(id: string, signal?: AbortSignal): Promise<BallotDto> {
-  return api.get<BallotDto>(`/elections/${encodeURIComponent(id)}/ballot`, undefined, signal);
-}
-
-export function submitVote(id: string, ballot: BallotSubmission): Promise<VoteReceipt> {
+/** Casts the voter's ballot. The receipt code is returned once and never stored by the server. */
+export function submitVote(id: string, ballot: BallotSubmissionInput): Promise<VoteReceipt> {
   return api.post<VoteReceipt>(`/elections/${encodeURIComponent(id)}/vote`, ballot);
+}
+
+/** Checks whether a receipt code matches a recorded ballot. */
+export function checkReceipt(code: string): Promise<ReceiptCheck> {
+  return api.post<ReceiptCheck>("/receipts/check", { code });
 }
 
 export function getResults(id: string, signal?: AbortSignal): Promise<ElectionResults> {

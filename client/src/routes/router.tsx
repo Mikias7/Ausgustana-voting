@@ -12,6 +12,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { ResultsPage } from "../pages/ResultsPage";
+import { ReceiptCheckPage } from "../pages/ReceiptCheckPage";
 import { VotePage } from "../pages/VotePage";
 import { AdminRoute } from "./AdminRoute";
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -61,6 +62,7 @@ export const routes: RouteObject[] = [
         ],
       },
       { path: "login", element: <LoginPage /> },
+      { path: "receipt", element: <ReceiptCheckPage /> },
       { path: "about", element: <AboutPage /> },
       { path: "contact", element: <ContactPage /> },
       {
