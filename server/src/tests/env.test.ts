@@ -15,7 +15,7 @@ describe("parseEnv", () => {
     expect(env).toMatchObject({
       PORT: 3000,
       AUTH_MODE: "dev",
-      ALLOWED_EMAIL_DOMAINS: ["ole.augie.edu"],
+      ALLOWED_EMAIL_DOMAINS: ["ole.augie.edu", "augie.edu"],
       CLIENT_ORIGIN: "http://localhost:5173",
     });
   });

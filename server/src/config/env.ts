@@ -16,7 +16,7 @@ export const envSchema = z
     AUTH_MODE: z.enum(["dev", "disabled"]).default("dev"),
     ALLOWED_EMAIL_DOMAINS: z
       .string()
-      .default("ole.augie.edu")
+      .default("ole.augie.edu,augie.edu")
       .transform((value) =>
         value
           .split(",")
