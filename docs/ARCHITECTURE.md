@@ -1,6 +1,6 @@
 # Augustana Voting Platform — Architecture (Phase 2 draft)
 
-> Status: **proposal, awaiting approval.** Nothing here is implemented yet.
+> Status: **approved — foundation in progress.**
 > Built for the **Augustana Student Association (ASA)**, Augustana University.
 
 ---
@@ -427,7 +427,7 @@ Dashboard · Elections (list, editor with tabs: Details / Positions & Candidates
 
 **UI kit** (`client/src/components/ui`): Button, Card, Badge, Tabs, Table, Modal/ConfirmDialog, Input/Select/Textarea, Spinner, EmptyState, ErrorState, Toast, PageHeader.
 
-**Theme**: Augustana blue & gold as Tailwind tokens (`augie-blue`, `augie-gold`, neutrals). Exact hex values to be confirmed against the university brand guide. Serif headings + clean sans-serif body; subtle hover/focus transitions; WCAG AA contrast and visible focus rings.
+**Theme**: Augustana blue & gold as Tailwind tokens (`augie-blue`, `augie-gold`, neutrals). See §10 for values. Serif headings + clean sans-serif body; subtle hover/focus transitions; WCAG AA contrast and visible focus rings.
 
 ---
 
@@ -466,15 +466,15 @@ ASA/
 
 ---
 
-## 10. Open questions (have defaults; confirm or correct)
+## 10. Resolved decisions (confirmed by project owner)
 
-1. **Class codes** — Is `FF` = Freshman/First-year? Are there other codes (e.g. `FR`, transfer, graduate)? *Default: `FF`, `FR` → Freshman; others = invalid.*
-2. **Invalid/missing class code** — *Default: import the student with no class (eligible only for "all students" positions) and list a warning.* Alternative: skip the row.
-3. **Email ≠ username** (e.g. `jdoe` / `john.doe@…`) — *Default: import with a warning.*
-4. **Full sync** marking absent students as off-roster (never deleting) — OK?
-5. **Brand colors** — do you have Augustana/ASA brand hex values or logo files we're allowed to use?
-
----
+1. **Class codes** — `FF` and `FR` both map to Freshman; `SO`, `JR`, `SR` map directly. Other codes are treated as invalid.
+2. **Invalid/missing class code** — student is imported with no class (eligible only for "all students" / voter-list positions) and a warning is listed.
+3. **Email local-part ≠ username** — imported with a warning.
+4. **Full sync** — students absent from the file are marked `onRoster = false`; never deleted.
+5. **Branding** — Augustana blue & gold. Tokens: `augie-blue` `#003087` (navy, primary), `augie-gold` `#FFC72C` (accent). ASA logo assets in `client/public/brand/`:
+   - `asa-logo.png` — transparent background, original colors (use on light backgrounds)
+   - `asa-logo-light.png` — white/gold recolor (use on navy backgrounds)
 
 ## 11. Subagents & workflow
 
