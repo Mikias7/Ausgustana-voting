@@ -1,0 +1,23 @@
+# Dependencies & builds
+node_modules/
+dist/
+build/
+coverage/
+
+# Environment & secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Student data — never commit real rosters
+*.roster.txt
+data/
+uploads/
+sampleData*.txt
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
