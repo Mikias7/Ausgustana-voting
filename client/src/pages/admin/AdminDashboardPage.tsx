@@ -5,6 +5,7 @@ import { ListRow } from "../../components/ui/ListRow";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { useAuth } from "../../context/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
+import { useRosterStats } from "../../hooks/useRoster";
 import { isPlatformAdmin } from "../../utils/auth";
 import { orgRoleLabel, platformRoleLabel } from "../../utils/labels";
 
@@ -23,6 +24,11 @@ export function AdminDashboardPage() {
   const { user } = useAuth();
   const platformAdmin = isPlatformAdmin(user);
   const sections = adminNavFor(user).filter((s) => s.to !== "/admin");
+  // Live roster count on the "Students & Import" row (one small request, platform admins only).
+  const roster = useRosterStats({ enabled: platformAdmin });
+  const trailing: Record<string, string | undefined> = {
+    "/admin/students": roster.data ? `${roster.data.onRoster.toLocaleString()} on roster` : undefined,
+  };
 
   return (
     <>
@@ -49,6 +55,7 @@ export function AdminDashboardPage() {
                 to={to}
                 title={label}
                 subtitle={DESCRIPTIONS[to]}
+                trailing={trailing[to] && <span className="tabular">{trailing[to]}</span>}
                 leading={<Icon className="size-5" aria-hidden="true" />}
               />
             ))}

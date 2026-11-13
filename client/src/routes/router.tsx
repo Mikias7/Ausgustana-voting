@@ -18,6 +18,7 @@ import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
 import { AdminElectionsPage } from "../pages/admin/AdminElectionsPage";
 import { AdminMessagesPage } from "../pages/admin/AdminMessagesPage";
 import { AdminOrganizationsPage } from "../pages/admin/AdminOrganizationsPage";
+import { AdminStudentImportPage } from "../pages/admin/AdminStudentImportPage";
 import { AdminStudentsPage } from "../pages/admin/AdminStudentsPage";
 import { AdminVoterListsPage } from "../pages/admin/AdminVoterListsPage";
 import { AdminRoute } from "./AdminRoute";
@@ -54,6 +55,7 @@ export const routes: RouteObject[] = [
               { path: "elections", element: <AdminElectionsPage /> },
               { path: "elections/:id", element: <AdminElectionsPage /> },
               { path: "students", element: <AdminStudentsPage /> },
+              { path: "students/import", element: <AdminStudentImportPage /> },
               { path: "voter-lists", element: <AdminVoterListsPage /> },
               { path: "organizations", element: <AdminOrganizationsPage /> },
               { path: "announcements", element: <AdminAnnouncementsPage /> },
