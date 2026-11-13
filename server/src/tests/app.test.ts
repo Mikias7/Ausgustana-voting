@@ -13,6 +13,7 @@ const config: AppConfig = {
   SESSION_SECRET: "test-secret-that-is-long-enough",
   CLIENT_ORIGIN: "http://localhost:5173",
   DATABASE_URL: "postgresql://unused:unused@localhost:5432/unused",
+  ALLOWED_EMAIL_DOMAINS: ["ole.augie.edu"],
 };
 
 const makeApp = (overrides: Partial<AppConfig> = {}) =>

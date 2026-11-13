@@ -1,22 +1,12 @@
-import type { ClassStanding } from "@asa/shared";
+import type { ClassStanding, RosterIssue } from "@asa/shared";
 
 /**
  * Parser for the university roster file (docs/ARCHITECTURE.md §2).
- * Pure: no I/O, no database. The importer (later feature) consumes its output.
+ * Pure: no I/O, no database. importRoster.service.ts consumes its output.
  *
  * Format: no header, CRLF or LF, pipe-delimited, 5 fields per line:
  *   Lastname|Firstname|username|email|classCode
  */
-
-export type IssueSeverity = "ERROR" | "WARNING";
-
-export interface RosterIssue {
-  /** 1-based physical line number in the file. */
-  line: number;
-  username?: string;
-  severity: IssueSeverity;
-  message: string;
-}
 
 export interface RosterRow {
   line: number;

@@ -18,7 +18,7 @@ const SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 // Two levels up from both src/app.ts and the bundled dist/server.js.
 const CLIENT_DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../client/dist");
 
-export type AppConfig = Pick<Env, "NODE_ENV" | "AUTH_MODE" | "SESSION_SECRET" | "CLIENT_ORIGIN" | "DATABASE_URL">;
+export type AppConfig = Pick<Env, "NODE_ENV" | "AUTH_MODE" | "SESSION_SECRET" | "CLIENT_ORIGIN" | "DATABASE_URL" | "ALLOWED_EMAIL_DOMAINS">;
 
 export interface AppOptions {
   /** Defaults to the PostgreSQL store; tests inject a MemoryStore. */

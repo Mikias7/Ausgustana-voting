@@ -1,6 +1,7 @@
 import type { ErrorRequestHandler, RequestHandler } from "express";
 import { Prisma } from "@prisma/client";
 import { ZodError } from "zod";
+import multer from "multer";
 import type { ApiErrorBody } from "@asa/shared";
 import { AppError } from "../utils/AppError";
 
@@ -28,6 +29,12 @@ function toResponse(err: unknown, exposeInternals: boolean): { status: number; b
   if (err instanceof ZodError) {
     const details = err.issues.map((i) => ({ path: i.path.join("."), message: i.message }));
     return make(400, "VALIDATION_ERROR", "The request is invalid", details);
+  }
+
+  // Upload errors (middleware/upload.ts).
+  if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") return make(413, "FILE_TOO_LARGE", "The file is too large");
+    return make(400, "INVALID_UPLOAD", err.field ? `${err.message} (${err.field})` : err.message);
   }
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
