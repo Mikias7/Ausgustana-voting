@@ -93,7 +93,7 @@ describe("GET /api/admin/students/stats", () => {
     expect(res.body).toEqual({
       onRoster: 33,
       offRoster: 1,
-      byClass: { FR: 30, SO: 1, JR: 1, SR: 0, NONE: 1 },
+      byClass: { FR: 30, SO: 1, JR: 1, SR: 0, GR: 0, NONE: 1 },
       lastImportAt: null,
     });
   });

@@ -25,6 +25,7 @@ enum ClassStanding {
   SO
   JR
   SR
+  GR
 }
 
 enum ElectionStatus {

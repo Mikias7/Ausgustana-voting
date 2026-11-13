@@ -6,7 +6,7 @@ import { useSearchParamState } from "./useSearchParamState";
 export const STUDENTS_PAGE_SIZE = 25;
 
 export type ClassFilterValue = "all" | StudentClassFilter;
-const CLASS_VALUES: readonly ClassFilterValue[] = ["all", "FR", "SO", "JR", "SR", "NONE"];
+const CLASS_VALUES: readonly ClassFilterValue[] = ["all", "FR", "SO", "JR", "SR", "GR", "NONE"];
 const ROSTER_VALUES: readonly StudentRosterFilter[] = ["all", "on", "off"];
 const RESET_PAGE = { resetKeys: ["page"] } as const;
 

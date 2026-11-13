@@ -468,7 +468,7 @@ ASA/
 
 ## 10. Resolved decisions (confirmed by project owner)
 
-1. **Class codes** — `FF` and `FR` both map to Freshman; `SO`, `JR`, `SR` map directly. Other codes are treated as invalid.
+1. **Class codes** — `FF` and `FR` → Freshman; `SO`, `JR`, `SR` map directly; `GS` (and `GR`) → **Graduate** (`GR`). Other codes are treated as invalid. ASA class senator seats use the four undergraduate classes; graduate students can be targeted explicitly in eligibility rules.
 2. **Invalid/missing class code** — student is imported with no class (eligible only for "all students" / voter-list positions) and a warning is listed.
 3. **Email local-part ≠ username** — imported with a warning.
 4. **Full sync** — students absent from the file are marked `onRoster = false`; never deleted.

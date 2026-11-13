@@ -50,6 +50,7 @@ const STUDENT_NAMES: Record<ClassStanding, [string, string][]> = {
   SO: [["Noah", "Sorensen"], ["Priya", "Raman"], ["Elijah", "Brandt"]],
   JR: [["Sofia", "Martinez"], ["Liam", "Nygaard"], ["Hannah", "Kowalski"]],
   SR: [["Ethan", "Berg"], ["Grace", "Thompson"], ["Lucas", "Amundson"]],
+  GR: [["Maya", "Ostrem"]],
 };
 
 async function seedUsers() {

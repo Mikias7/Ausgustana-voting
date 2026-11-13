@@ -51,7 +51,7 @@ export function getImport(id: string, signal?: AbortSignal): Promise<ImportSumma
   return api.get<ImportSummary>(`/admin/imports/${encodeURIComponent(id)}`, undefined, signal);
 }
 
-export type StudentClassFilter = "FR" | "SO" | "JR" | "SR" | "NONE";
+export type StudentClassFilter = "FR" | "SO" | "JR" | "SR" | "GR" | "NONE";
 export type StudentRosterFilter = "all" | "on" | "off";
 
 export interface StudentFilters {

@@ -58,7 +58,7 @@ describe("parseStoredRule", () => {
   it("accepts valid rules and rejects malformed JSON", () => {
     expect(parseStoredRule({ type: "ALL_STUDENTS" })).toEqual(ALL);
     expect(parseStoredRule({ type: "CLASS_STANDING", classes: [] })).toBeNull();
-    expect(parseStoredRule({ type: "CLASS_STANDING", classes: ["GR"] })).toBeNull();
+    expect(parseStoredRule({ type: "CLASS_STANDING", classes: ["XX"] })).toBeNull();
     expect(parseStoredRule({ type: "VOTER_LIST", listId: "nope" })).toBeNull();
     expect(parseStoredRule(null)).toBeNull();
   });
@@ -71,7 +71,9 @@ describe("describeRule", () => {
     [{ type: "CLASS_STANDING", classes: ["FR"] }, "Open to Freshmen only"],
     [{ type: "CLASS_STANDING", classes: ["SR", "JR"] }, "Open to Juniors and Seniors"],
     [{ type: "CLASS_STANDING", classes: ["JR", "FR", "SO"] }, "Open to Freshmen, Sophomores and Juniors"],
-    [{ type: "CLASS_STANDING", classes: ["FR", "SO", "JR", "SR"] }, "Open to all class years"],
+    [{ type: "CLASS_STANDING", classes: ["FR", "SO", "JR", "SR"] }, "Open to undergraduates"],
+    [{ type: "CLASS_STANDING", classes: ["FR", "SO", "JR", "SR", "GR"] }, "Open to all class years"],
+    [{ type: "CLASS_STANDING", classes: ["GR"] }, "Open to Graduate students only"],
     [LIST, "Open to a specific list of students"],
   ])("%j → %s", (rule, text) => {
     expect(describeRule(rule)).toBe(text);

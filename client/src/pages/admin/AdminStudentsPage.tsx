@@ -23,6 +23,7 @@ const CLASS_OPTIONS: Array<{ value: Exclude<ClassFilterValue, "all">; label: str
   { value: "SO", label: "Sophomores" },
   { value: "JR", label: "Juniors" },
   { value: "SR", label: "Seniors" },
+  { value: "GR", label: "Graduate students" },
   { value: "NONE", label: "No class" },
 ];
 

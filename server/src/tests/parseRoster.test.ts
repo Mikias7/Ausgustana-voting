@@ -89,6 +89,8 @@ describe("parseRoster — class codes", () => {
     ["SO", "SO"],
     ["JR", "JR"],
     ["SR", "SR"],
+    ["GS", "GR"],
+    ["GR", "GR"],
     ["ff", "FR"],
     [" sr ", "SR"],
   ])("maps %j to %s", (code, expected) => {
@@ -98,9 +100,9 @@ describe("parseRoster — class codes", () => {
   });
 
   it("imports unknown codes without a class and warns", () => {
-    const { rows, issues } = classOf("GR");
+    const { rows, issues } = classOf("XX");
     expect(rows[0]?.classStanding).toBeNull();
-    expect(issues).toEqual([{ line: 1, username: "jdoe", severity: "WARNING", message: expect.stringContaining('"GR"') }]);
+    expect(issues).toEqual([{ line: 1, username: "jdoe", severity: "WARNING", message: expect.stringContaining('"XX"') }]);
   });
 
   it("imports an empty code without a class and warns", () => {

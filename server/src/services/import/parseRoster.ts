@@ -31,13 +31,15 @@ export interface ParseRosterOptions {
   classCodeMap?: Readonly<Record<string, ClassStanding>>;
 }
 
-/** "FF" is the registrar's code for first-year students, so it maps to FR too. */
+/** Registrar codes: "FF" = first-year (Freshman), "GS" = graduate student. */
 export const DEFAULT_CLASS_CODE_MAP: Readonly<Record<string, ClassStanding>> = {
   FF: "FR",
   FR: "FR",
   SO: "SO",
   JR: "JR",
   SR: "SR",
+  GS: "GR",
+  GR: "GR",
 };
 
 const EXPECTED_FIELDS = 5;

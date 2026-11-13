@@ -4,7 +4,7 @@
  * Values must match the Prisma enums in server/prisma/schema.prisma.
  */
 
-export const CLASS_STANDINGS = ["FR", "SO", "JR", "SR"] as const;
+export const CLASS_STANDINGS = ["FR", "SO", "JR", "SR", "GR"] as const;
 export type ClassStanding = (typeof CLASS_STANDINGS)[number];
 
 export const CLASS_STANDING_LABELS: Record<ClassStanding, string> = {
@@ -12,7 +12,11 @@ export const CLASS_STANDING_LABELS: Record<ClassStanding, string> = {
   SO: "Sophomore",
   JR: "Junior",
   SR: "Senior",
+  GR: "Graduate",
 };
+
+/** The four undergraduate class years (ASA class senator seats). */
+export const UNDERGRAD_CLASS_STANDINGS = ["FR", "SO", "JR", "SR"] as const satisfies readonly ClassStanding[];
 
 export const PLATFORM_ROLES = ["STUDENT", "PLATFORM_ADMIN"] as const;
 export type PlatformRole = (typeof PLATFORM_ROLES)[number];

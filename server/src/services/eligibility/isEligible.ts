@@ -1,5 +1,6 @@
 import {
   CLASS_STANDINGS,
+  UNDERGRAD_CLASS_STANDINGS,
   eligibilityRuleSchema,
   type ClassStanding,
   type EligibilityRule,
@@ -52,6 +53,7 @@ const PLURAL_LABELS: Record<ClassStanding, string> = {
   SO: "Sophomores",
   JR: "Juniors",
   SR: "Seniors",
+  GR: "Graduate students",
 };
 
 /**
@@ -66,6 +68,8 @@ export function describeRule(rule: EligibilityRule, voterListName?: string): str
       // Keep FR→SR order regardless of how the rule lists classes.
       const classes = CLASS_STANDINGS.filter((c) => rule.classes.includes(c));
       if (classes.length === CLASS_STANDINGS.length) return "Open to all class years";
+      if (classes.length === UNDERGRAD_CLASS_STANDINGS.length && UNDERGRAD_CLASS_STANDINGS.every((c) => classes.includes(c)))
+        return "Open to undergraduates";
       const labels = classes.map((c) => PLURAL_LABELS[c]);
       if (labels.length === 1) return `Open to ${labels[0]} only`;
       return `Open to ${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;

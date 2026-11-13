@@ -12,6 +12,7 @@ const CLASS_STANDING_PLURALS: Record<ClassStanding, string> = {
   SO: "Sophomores",
   JR: "Juniors",
   SR: "Seniors",
+  GR: "Graduate students",
 };
 
 export function classStandingLabel(value: ClassStanding | null | undefined): string {
