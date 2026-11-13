@@ -358,13 +358,19 @@ async function transition(
   if (extraCheck) await extraCheck(await loadDetailRow(id), now);
 
   await prisma.$transaction(async (tx) => {
+    // Lock and re-check: two admins closing/cancelling at once can't both apply.
+    // FOR UPDATE also waits for in-flight votes (they hold FOR SHARE on this row).
+    await tx.$queryRaw`SELECT id FROM elections WHERE id = ${id}::uuid FOR UPDATE`;
+    const fresh = await tx.election.findUniqueOrThrow({ where: { id } });
+    const freshPhase = getElectionPhase(fresh, now);
+    check(freshPhase);
     await tx.election.update({ where: { id }, data: data(now) });
     await recordAudit(tx, {
       actorId: user.id,
       action,
       entityType: "Election",
       entityId: id,
-      metadata: { fromPhase: phase },
+      metadata: { fromPhase: freshPhase },
     });
   });
   return getAdminElection(user, id);

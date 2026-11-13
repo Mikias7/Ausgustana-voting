@@ -108,7 +108,12 @@ export async function castVote(user: AuthUser, electionId: string, submission: B
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") throw alreadyVoted();
-    throw err;
+    if (err instanceof AppError) throw err;
+    // Never pass the raw error on: database errors can quote the ballot's values,
+    // and the error handler logs 5xx errors next to request metadata.
+    const kind = err instanceof Prisma.PrismaClientKnownRequestError ? err.code : (err as Error)?.name;
+    console.error(`castVote failed (${kind ?? "unknown"})`);
+    throw new AppError(500, "VOTE_FAILED", "We couldn't record your ballot. Nothing was saved; please try again.");
   }
 
   return { receiptCode };

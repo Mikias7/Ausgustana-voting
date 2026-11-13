@@ -33,4 +33,4 @@ export const voteLimiter = limiter(MINUTE, 10, { keyGenerator: byUserOrIp, skip:
 /** Public contact form. */
 export const contactLimiter = limiter(60 * MINUTE, 5, { skip: (req) => req.method !== "POST" });
 /** Receipt-code checks (codes have 60 random bits; this just keeps scanners away). */
-export const receiptLimiter = limiter(15 * MINUTE, 30, { skip: (req) => req.method !== "POST" });
+export const receiptLimiter = limiter(15 * MINUTE, 30, { keyGenerator: byUserOrIp, skip: (req) => req.method !== "POST" });

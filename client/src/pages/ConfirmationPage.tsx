@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, CircleCheck, Copy, Receipt } from "lucide-react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { BrandPanel } from "../components/ui/BrandPanel";
 import { Button } from "../components/ui/Button";
 import { Container } from "../components/ui/Container";
@@ -18,11 +18,19 @@ function isConfirmationState(value: unknown): value is ConfirmationState {
  */
 export function ConfirmationPage() {
   const { id = "" } = useParams<{ id: string }>();
-  const { state } = useLocation();
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Keep the receipt in memory only, then wipe it from browser history so it can't be
+  // recovered later with Back/Forward or a reload (e.g. on a shared lab computer).
+  const [state] = useState(() => (isConfirmationState(location.state) ? location.state : null));
   const [copied, setCopied] = useState(false);
   usePageTitle("Vote recorded");
 
-  if (!isConfirmationState(state)) {
+  useEffect(() => {
+    if (location.state) navigate(".", { replace: true, state: null });
+  }, [location.state, navigate]);
+
+  if (!state) {
     return (
       <Container size="narrow">
         <EmptyState
@@ -44,9 +52,11 @@ export function ConfirmationPage() {
     );
   }
 
+  const receipt = state;
+
   async function copy() {
     try {
-      await navigator.clipboard.writeText(state.receiptCode);
+      await navigator.clipboard.writeText(receipt.receiptCode);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
