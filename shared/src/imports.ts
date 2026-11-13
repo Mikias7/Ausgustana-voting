@@ -74,3 +74,16 @@ export interface RosterStats {
   byClass: Record<ClassStanding | "NONE", number>;
   lastImportAt: string | null;
 }
+
+/** `details` of a 400 IMPORT_EMPTY error (file had no valid rows). */
+export interface ImportEmptyErrorDetails {
+  /** Up to 200 issues explaining why rows were rejected. */
+  issues: RosterIssue[];
+}
+
+/** `details` of a 400 IMPORT_SYNC_TOO_DESTRUCTIVE error (commit only; resend with confirmDestructive=true). */
+export interface ImportTooDestructiveErrorDetails {
+  deactivated: number;
+  onRoster: number;
+  thresholdRatio: number;
+}
