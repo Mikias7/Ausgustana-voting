@@ -179,17 +179,9 @@ describe("parseRoster — duplicates and warnings", () => {
     expect(rows.map((r) => r.line)).toEqual([2]);
   });
 
-  it("warns (but keeps the row) when the email local part differs from the username", () => {
+  it("accepts an email whose local part differs from the username, without warning", () => {
     const { rows, issues } = parseRoster("Doe|Jane|jdoe|jane.doe@ole.augie.edu|SO", options);
     expect(rows).toHaveLength(1);
-    expect(issues).toEqual([
-      { line: 1, username: "jdoe", severity: "WARNING", message: expect.stringMatching(/does not match username/) },
-    ]);
-  });
-
-  it("can report several warnings for one row", () => {
-    const { rows, issues } = parseRoster("Doe|Jane|jdoe|jane.doe@ole.augie.edu|XX", options);
-    expect(rows).toHaveLength(1);
-    expect(issues.map((i) => i.severity)).toEqual(["WARNING", "WARNING"]);
+    expect(issues).toEqual([]);
   });
 });

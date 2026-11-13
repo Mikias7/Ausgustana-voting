@@ -157,10 +157,10 @@ describe("MERGE", () => {
     expect((await prisma.user.findUniqueOrThrow({ where: { username: "odd" } })).classStanding).toBeNull();
   });
 
-  it("imports a row whose email does not match the username, with a warning", async () => {
+  it("imports a row whose email does not match the username, without a warning", async () => {
     const summary = await commit(roster(line("jdoe", { email: "john.doe@ole.augie.edu" })));
-    expect(summary.counts).toMatchObject({ created: 1, warnings: 1 });
-    expect(summary.issues[0]).toMatchObject({ line: 1, username: "jdoe", severity: "WARNING" });
+    expect(summary.counts).toMatchObject({ created: 1, warnings: 0 });
+    expect(summary.issues).toEqual([]);
     expect((await prisma.user.findUniqueOrThrow({ where: { username: "jdoe" } })).email).toBe("john.doe@ole.augie.edu");
   });
 
@@ -183,7 +183,6 @@ describe("MERGE", () => {
     const summary = await commit(roster(line("newbie", { email: "taken@ole.augie.edu" }), line("ok")));
 
     expect(summary.counts).toMatchObject({ valid: 1, created: 1, skipped: 1, warnings: 0 });
-    // The email/username mismatch warning is dropped for a row that is skipped anyway.
     expect(summary.issues).toEqual([{
       line: 1,
       username: "newbie",

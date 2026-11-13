@@ -51,7 +51,7 @@ Validation per line:
 | Email valid and in an allowed domain (`ole.augie.edu`, configurable) | Skipped |
 | Class code in mapping table | *Open question* (see §10) |
 | Duplicate username or email inside the same file | First kept, later lines skipped |
-| Email local-part ≠ username | Warning (imported, flagged) — *open question* |
+| Email local-part ≠ username | Accepted, no warning |
 
 Import modes:
 - **Merge** (default): add new students, update changed ones. Nobody is removed.
@@ -470,7 +470,7 @@ ASA/
 
 1. **Class codes** — `FF` and `FR` → Freshman; `SO`, `JR`, `SR` map directly; `GS` (and `GR`) → **Graduate** (`GR`). Other codes are treated as invalid. ASA class senator seats use the four undergraduate classes; graduate students can be targeted explicitly in eligibility rules.
 2. **Invalid/missing class code** — student is imported with no class (eligible only for "all students" / voter-list positions) and a warning is listed.
-3. **Email local-part ≠ username** — imported with a warning.
+3. **Email local-part ≠ username** — accepted, no warning (emails may legitimately differ from usernames).
 4. **Full sync** — students absent from the file are marked `onRoster = false`; never deleted.
 5. **Branding** — Augustana blue & gold. Tokens: `augie-blue` `#003087` (navy, primary), `augie-gold` `#FFC72C` (accent). ASA logo assets in `client/public/brand/`:
    - `asa-logo.png` — transparent background, original colors (use on light backgrounds)

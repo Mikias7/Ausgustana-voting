@@ -118,15 +118,6 @@ export function parseRoster(text: string, options: ParseRosterOptions): ParseRos
       });
     }
 
-    const localPart = email.slice(0, email.lastIndexOf("@"));
-    if (localPart !== username) {
-      issues.push({
-        ...issueBase,
-        severity: "WARNING",
-        message: `Email "${email}" does not match username "${username}"`,
-      });
-    }
-
     rows.push({ line, lastName, firstName, username, email, classStanding });
   });
 
