@@ -12,3 +12,13 @@ export function generateReceiptCode(): string {
 export function hashReceiptCode(code: string): string {
   return createHash("sha256").update(code.trim().toUpperCase()).digest("hex");
 }
+
+/**
+ * Canonical form of user-typed input: uppercase, spaces/dashes ignored, regrouped
+ * as XXXX-XXXX-XXXX. Returns null when it can't be a receipt code.
+ */
+export function normalizeReceiptCode(input: string): string | null {
+  const raw = input.toUpperCase().replace(/[\s-]/g, "");
+  if (raw.length !== 12 || [...raw].some((c) => !ALPHABET.includes(c))) return null;
+  return raw.match(/.{4}/g)!.join("-");
+}

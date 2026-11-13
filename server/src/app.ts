@@ -8,7 +8,7 @@ import connectPgSimple from "connect-pg-simple";
 import type { Env } from "./config/env";
 import { requireCsrfHeader } from "./middleware/csrf";
 import { attachUser } from "./middleware/auth";
-import { apiLimiter, contactLimiter, voteLimiter } from "./middleware/rateLimit";
+import { apiLimiter, contactLimiter, receiptLimiter, voteLimiter } from "./middleware/rateLimit";
 import { createErrorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { SESSION_COOKIE_NAME } from "./controllers/auth.controller";
 import { apiRoutes } from "./routes";
@@ -62,6 +62,7 @@ export function createApp(config: AppConfig, options: AppOptions = {}): Express 
   app.use("/api", apiLimiter);
   app.use("/api", requireCsrfHeader);
   app.use("/api/elections/:id/vote", voteLimiter);
+  app.use("/api/receipts", receiptLimiter);
   app.use("/api/contact", contactLimiter);
   app.use("/api", attachUser);
   app.use("/api", apiRoutes(config));
