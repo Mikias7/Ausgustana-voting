@@ -3,6 +3,7 @@ import type { Env } from "../config/env";
 import { validate } from "../middleware/validate";
 import { requirePlatformAdmin } from "../middleware/auth";
 import { rosterUpload } from "../middleware/upload";
+import { electionAdminRoutes } from "./electionAdmin.routes";
 import {
   getImport,
   getImports,
@@ -15,9 +16,15 @@ import {
   studentListQuery,
 } from "../controllers/admin.controller";
 
-/** /api/admin — platform administrators only. */
+/**
+ * /api/admin — election management (organization-scoped, see
+ * electionAdmin.routes.ts) first, then platform-administrator-only routes.
+ */
 export function adminRoutes(env: Pick<Env, "ALLOWED_EMAIL_DOMAINS">): Router {
   const router = Router();
+  router.use(electionAdminRoutes());
+
+  // Everything below: platform administrators only.
   router.use(requirePlatformAdmin);
 
   /**
