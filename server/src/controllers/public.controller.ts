@@ -4,6 +4,7 @@ import { ELECTION_LIST_PHASES, getElectionDetail, listElections } from "../servi
 import { listOrganizations } from "../services/organizations.service";
 import { listPublishedAnnouncements } from "../services/announcements.service";
 import { getProfile } from "../services/profile.service";
+import { getPublicResults } from "../services/results/results.service";
 import { AppError } from "../utils/AppError";
 
 export const electionListQuery = z.object({
@@ -23,6 +24,12 @@ export async function getElection(req: Request, res: Response) {
   // A malformed id cannot match any election, so treat it as not found.
   if (!uuid.safeParse(id).success) throw AppError.notFound("Election not found");
   res.json(await getElectionDetail(id, req.user));
+}
+
+export async function getResults(req: Request, res: Response) {
+  const id = String(req.params.id);
+  if (!uuid.safeParse(id).success) throw AppError.notFound("Election not found");
+  res.json(await getPublicResults(id, req.user));
 }
 
 export async function getOrganizations(_req: Request, res: Response) {

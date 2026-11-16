@@ -1,12 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { ELECTION_STATUSES, type ElectionInput, type ElectionUpdate } from "@asa/shared";
+import { ELECTION_STATUSES, type ElectionInput, type ElectionUpdate, type PublishResultsInput } from "@asa/shared";
 import { AppError } from "../utils/AppError";
 import type { AuthUser } from "../services/auth/currentUser";
 import { listManagedOrganizations } from "../services/admin/access";
 import * as elections from "../services/admin/elections.service";
 import * as positions from "../services/admin/positions.service";
 import * as voterLists from "../services/admin/voterLists.service";
+import * as results from "../services/results/results.service";
 
 export const adminElectionListQuery = z.object({
   org: z.string().trim().toLowerCase().min(1).max(100).optional(),
@@ -81,6 +82,20 @@ export function electionTransition(name: keyof typeof transitions) {
 
 export async function postDuplicate(req: Request, res: Response) {
   res.status(201).json(await elections.duplicateElection(me(req), param(req, "id")));
+}
+
+// ---------- results ----------
+
+export async function getElectionResults(req: Request, res: Response) {
+  res.json(await results.getAdminResults(me(req), param(req, "id")));
+}
+
+export async function postPublishResults(req: Request, res: Response) {
+  res.json(await results.publishResults(me(req), param(req, "id"), req.body as PublishResultsInput));
+}
+
+export async function postUnpublishResults(req: Request, res: Response) {
+  res.json(await results.unpublishResults(me(req), param(req, "id")));
 }
 
 // ---------- positions ----------

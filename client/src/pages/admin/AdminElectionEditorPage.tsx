@@ -14,6 +14,7 @@ import { ElectionActions } from "../../components/admin-elections/ElectionAction
 import { EligibilityRuleEditor } from "../../components/admin-elections/EligibilityRuleEditor";
 import { PositionsEditor, type Notice } from "../../components/admin-elections/PositionsEditor";
 import { PublishChecklist } from "../../components/admin-elections/PublishChecklist";
+import { ResultsReleasePanel } from "../../components/admin-elections/ResultsReleasePanel";
 import {
   ResultsSettingsFields,
   type ResultsSettingsValue,
@@ -45,7 +46,7 @@ import { formatDateTime } from "../../utils/dates";
 import { isoToLocalInput, localInputToIso } from "../../utils/datetimeLocal";
 import { fieldErrorsFromApiError, fieldErrorsFromIssues, hasErrors, type FieldErrors } from "../../utils/formErrors";
 
-const TABS = ["details", "positions", "settings"] as const;
+const TABS = ["details", "positions", "settings", "results"] as const;
 type Tab = (typeof TABS)[number];
 
 interface SectionProps {
@@ -341,7 +342,7 @@ export function AdminElectionEditorPage() {
   const state = useAdminElection(id);
   const { election } = state;
   usePageTitle(election ? `${election.title} · Admin` : "Election · Admin");
-  const [tab, setTab] = useSearchParamState<Tab>("tab", TABS, "details");
+  const [tabParam, setTab] = useSearchParamState<Tab>("tab", TABS, "details");
   const [notice, setNotice] = useState<Notice | null>(
     () => (location.state as { notice?: Notice } | null)?.notice ?? null,
   );
@@ -407,6 +408,8 @@ export function AdminElectionEditorPage() {
   if (!election) return <EditorSkeleton />;
 
   const { phase } = election;
+  // The Results tab only exists once voting has closed.
+  const tab: Tab = tabParam === "results" && phase !== "closed" ? "details" : tabParam;
   const structureEditable = !election.locked && isEditablePhase(phase);
   const positionTitles = Object.fromEntries(election.positions.map((p) => [p.id, p.title]));
   const sectionProps = { election, state, onNotice: setNotice };
@@ -441,7 +444,7 @@ export function AdminElectionEditorPage() {
         )}
         {phase === "closed" && (
           <Alert tone="info" title="Voting has closed">
-            This election is read-only. Results tools are coming in a later update.
+            This election is read-only. Review and release the results in the Results tab.
           </Alert>
         )}
         {phase === "cancelled" && (
@@ -479,6 +482,7 @@ export function AdminElectionEditorPage() {
             { id: "details", label: "Details" },
             { id: "positions", label: "Positions", count: election.positions.length },
             { id: "settings", label: "Settings" },
+            ...(phase === "closed" ? [{ id: "results" as const, label: "Results" }] : []),
           ]}
           value={tab}
           onChange={setTab}
@@ -503,6 +507,9 @@ export function AdminElectionEditorPage() {
             <EligibilityPanel {...sectionProps} voterLists={voterLists} />
             <ResultsPanel {...sectionProps} />
           </div>
+        )}
+        {tab === "results" && (
+          <ResultsReleasePanel election={election} onChanged={state.refresh} onNotice={setNotice} />
         )}
       </TabPanel>
     </>

@@ -94,23 +94,6 @@ export interface VoteReceipt {
   receiptCode: string;
 }
 
-export interface PositionResult {
-  positionId: string;
-  title: string;
-  seats: number;
-  totalBallots: number;
-  abstentions: number;
-  candidates: { candidateId: string | null; name: string; votes: number; isWinner: boolean }[];
-}
-
-export interface ElectionResults {
-  electionId: string;
-  title: string;
-  publishedAt: string | null;
-  turnout: { voted: number; eligible: number } | null;
-  positions: PositionResult[];
-}
-
 export interface ParticipationEntry {
   electionId: string;
   electionTitle: string;

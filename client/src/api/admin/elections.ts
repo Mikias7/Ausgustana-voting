@@ -5,6 +5,7 @@ import type {
   AdminCandidate,
   CandidateInput,
   ElectionInput,
+  ElectionResults,
   ElectionUpdate,
   ManagedOrganization,
   PositionInput,
@@ -20,6 +21,8 @@ export const ELECTION_ERROR_CODES = {
   publishBlocked: "PUBLISH_BLOCKED",
   invalidVoterList: "INVALID_VOTER_LIST",
   validation: "VALIDATION_ERROR",
+  lowTurnout: "LOW_TURNOUT",
+  resultsAutomatic: "RESULTS_AUTOMATIC",
 } as const;
 
 const enc = encodeURIComponent;
@@ -63,6 +66,21 @@ export type ElectionLifecycleAction = "publish" | "unpublish" | "close" | "cance
 /** POST /admin/elections/:id/{publish|unpublish|close|cancel}. Publish may fail with 400 PUBLISH_BLOCKED. */
 export function runElectionAction(id: string, action: ElectionLifecycleAction): Promise<AdminElectionDetail> {
   return api.post<AdminElectionDetail>(`/admin/elections/${enc(id)}/${action}`);
+}
+
+/** Tally for a closed election (admins always see turnout). 409 while voting hasn't closed. */
+export function getElectionResults(id: string, signal?: AbortSignal): Promise<ElectionResults> {
+  return api.get<ElectionResults>(`/admin/elections/${enc(id)}/results`, undefined, signal);
+}
+
+/** Releases results (manual release only). 409 LOW_TURNOUT unless `acknowledgeLowTurnout`. */
+export function publishResults(id: string, acknowledgeLowTurnout = false): Promise<ElectionResults> {
+  return api.post<ElectionResults>(`/admin/elections/${enc(id)}/results/publish`, { acknowledgeLowTurnout });
+}
+
+/** Hides manually released results again. */
+export function unpublishResults(id: string): Promise<ElectionResults> {
+  return api.post<ElectionResults>(`/admin/elections/${enc(id)}/results/unpublish`);
 }
 
 /** Copies the election (positions, candidates, settings) into a new draft. */

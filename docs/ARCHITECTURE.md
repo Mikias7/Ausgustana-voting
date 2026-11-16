@@ -150,7 +150,7 @@ COMMIT
 - Audit logs record *that* someone voted, never what.
 
 **Documented limitations (not hidden):**
-- **Database-level linkability.** Participation, ballot and audit rows are written in one transaction, so they share a PostgreSQL transaction id and physical insertion order (preserved by `pg_dump`). Anyone with read access to the database **or a backup** — not only someone watching live — could match ballots to `voted_at` after the fact. This design protects against app users and admins, not against database/server access. Therefore: restrict DB and backup access to the server operator, treat backups as sensitive as the ballots themselves, and keep DB credentials off admin machines. A stronger option (writing ballots through a shuffled batch queue so they don't share a transaction with participation) is possible later if ASA requires it.
+- **Database-level linkability.** Participation, ballot and audit rows are written in one transaction, so they share a PostgreSQL transaction id and physical insertion order (preserved by `pg_dump`). Anyone with read access to the database **or a backup** â€” not only someone watching live â€” could match ballots to `voted_at` after the fact. This design protects against app users and admins, not against database/server access. Therefore: restrict DB and backup access to the server operator, treat backups as sensitive as the ballots themselves, and keep DB credentials off admin machines. A stronger option (writing ballots through a shuffled batch queue so they don't share a transaction with participation) is possible later if ASA requires it.
 - Error logs never include ballot contents: vote failures are logged as a code only.
 - With very few voters for a position, published totals can reveal choices (e.g., 1 voter). Admins see a warning when publishing results for positions below a configurable minimum turnout.
 - Write-in text could identify a voter if they write identifying content.
@@ -161,6 +161,14 @@ COMMIT
 | `resultsVisibility` | `PUBLIC`, `STUDENTS` (any logged-in student), `ADMINS_ONLY` |
 | `resultsRelease` | `AUTOMATIC` (when election closes) or `MANUAL` (admin clicks Publish) |
 | `showTurnout` | yes / no |
+
+Implementation (`server/src/services/results/`):
+- Totals come from `GROUP BY` aggregates over `ballot_selections`; no endpoint returns individual ballots.
+- Winners: the top `seats` candidates with at least one vote. A tie for the last seat(s) is marked `TIED` and no winner is declared for those seats; the organizers resolve it.
+- Write-ins are grouped by name, ignoring case and spacing.
+- Turnout = students who voted / students *currently* eligible under the election rule (the roster can change after voting).
+- Organization admins can preview results as soon as voting closes. With manual release they click **Release results** (and can hide them again). Releasing when any position has fewer than `RESULTS_PRIVACY_MIN_BALLOTS` (5) ballots requires an explicit acknowledgment, recorded in the audit log.
+- Automatic release has no such prompt; admins still see the low-turnout warning.
 
 ---
 

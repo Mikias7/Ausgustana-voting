@@ -12,6 +12,8 @@ interface ConfirmDialogProps {
   tone?: "primary" | "danger";
   /** Shows a spinner on the confirm button and blocks dismissal. */
   loading?: boolean;
+  /** Disables the confirm button, e.g. until a required acknowledgment is checked. */
+  confirmDisabled?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -26,6 +28,7 @@ export function ConfirmDialog({
   cancelLabel = "Cancel",
   tone = "primary",
   loading = false,
+  confirmDisabled = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -44,7 +47,7 @@ export function ConfirmDialog({
           <Button ref={cancelRef} variant="secondary" onClick={onCancel} disabled={loading}>
             {cancelLabel}
           </Button>
-          <Button variant={tone} onClick={onConfirm} loading={loading}>
+          <Button variant={tone} onClick={onConfirm} loading={loading} disabled={confirmDisabled}>
             {confirmLabel}
           </Button>
         </>

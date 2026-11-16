@@ -47,3 +47,26 @@ export async function getMyStatuses(
 
   return new Map(elections.map((e) => [e.id, computeMyStatus(e, user, ctx, voted.has(e.id))]));
 }
+
+/**
+ * How many students are eligible under `rawRule` right now: the database
+ * equivalent of isEligible(), used for turnout. Malformed rules count 0.
+ */
+export async function countEligibleVoters(rawRule: unknown): Promise<number> {
+  const rule = parseStoredRule(rawRule);
+  if (!rule) return 0;
+  switch (rule.type) {
+    case "ALL_STUDENTS":
+      return prisma.user.count({ where: { onRoster: true } });
+    case "CLASS_STANDING":
+      return prisma.user.count({ where: { onRoster: true, classStanding: { in: rule.classes } } });
+    case "VOTER_LIST": {
+      const members = await prisma.voterListMember.findMany({
+        where: { voterListId: rule.listId },
+        select: { username: true },
+      });
+      if (members.length === 0) return 0;
+      return prisma.user.count({ where: { onRoster: true, username: { in: members.map((m) => m.username) } } });
+    }
+  }
+}

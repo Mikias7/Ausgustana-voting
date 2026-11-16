@@ -10,6 +10,7 @@ import {
   getElections,
   getMe,
   getOrganizations,
+  getResults,
 } from "../controllers/public.controller";
 
 export function publicRoutes(): Router {
@@ -21,6 +22,7 @@ export function publicRoutes(): Router {
 
   router.get("/elections", validate({ query: electionListQuery }), getElections);
   router.get("/elections/:id", getElection);
+  router.get("/elections/:id/results", getResults);
   router.post("/elections/:id/vote", requireAuth, validate({ body: ballotSubmissionSchema }), postVote);
   router.post("/receipts/check", validate({ body: receiptCheckSchema }), postReceiptCheck);
   router.get("/organizations", getOrganizations);

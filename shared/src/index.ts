@@ -5,3 +5,4 @@ export * from "./electionPhase";
 export * from "./imports";
 export * from "./adminElections";
 export * from "./voting";
+export * from "./results";

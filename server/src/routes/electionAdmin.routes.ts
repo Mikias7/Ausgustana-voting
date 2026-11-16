@@ -4,6 +4,7 @@ import {
   electionInputSchema,
   electionUpdateSchema,
   positionInputSchema,
+  publishResultsSchema,
   reorderSchema,
   voterListInputSchema,
   voterListMembersSchema,
@@ -36,6 +37,16 @@ export function electionAdminRoutes(): Router {
   router.post("/elections/:id/close", c.uuidParams("id"), c.electionTransition("close"));
   router.post("/elections/:id/cancel", c.uuidParams("id"), c.electionTransition("cancel"));
   router.post("/elections/:id/duplicate", c.uuidParams("id"), c.postDuplicate);
+
+  // Results (once voting closes)
+  router.get("/elections/:id/results", c.uuidParams("id"), c.getElectionResults);
+  router.post(
+    "/elections/:id/results/publish",
+    c.uuidParams("id"),
+    validate({ body: publishResultsSchema }),
+    c.postPublishResults,
+  );
+  router.post("/elections/:id/results/unpublish", c.uuidParams("id"), c.postUnpublishResults);
 
   // Positions
   router.post("/elections/:id/positions", c.uuidParams("id"), validate({ body: positionInputSchema }), c.postPosition);
